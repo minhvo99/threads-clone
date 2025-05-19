@@ -1,0 +1,15 @@
+@import "tailwindcss";
+body {
+  font-family: "Public Sans Variable", sans-serif;
+}
+
+@layer components {
+  .container {
+    @apply mx-auto flex max-w-screen-xl gap-6 px-6 py-10 sm:gap-8;
+  }
+}
+
+@theme {
+  --color-dark-100: #4b465c;
+  --color-dark-200: #f8f7fa;
+}
