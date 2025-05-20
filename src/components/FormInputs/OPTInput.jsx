@@ -1,16 +1,16 @@
-import { MuiOtpInput } from "mui-one-time-password-input";
+import { MuiOtpInput } from 'mui-one-time-password-input';
 
 const OPTInput = ({ value, onChange }) => {
-  return (
-    <MuiOtpInput
-      display="flex"
-      className="w-[370px]"
-      autoFocus
-      onChange={onChange}
-      length={4}
-      value={value}
-    />
-  );
+    return (
+        <MuiOtpInput
+            display='flex'
+            className='w-[370px]'
+            autoFocus
+            onChange={onChange}
+            length={6}
+            value={value}
+        />
+    );
 };
 
 export default OPTInput;

@@ -7,9 +7,39 @@ import { useRegisterMutation } from '@services/rootApi';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { openSnakeBar } from '@redux/slices/snakeBarSlices';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
 
 const RegisterPage = () => {
-    const { control, handleSubmit } = useForm();
+    const emailRegex =
+        /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
+    const formBuilder = yup.object().shape({
+        fullName: yup.string().required('Full Name is required'),
+        email: yup
+            .string()
+            .matches(emailRegex, 'Email is invalid')
+            .required('Email is required'),
+        password: yup.string().required('Password is required'),
+        passwordConfirmation: yup
+            .string()
+            .required('Confirm Password is required')
+            .oneOf([yup.ref('password'), null], 'Passwords must match'),
+    });
+    const {
+        control,
+        handleSubmit,
+        formState: { errors },
+    } = useForm({
+        resolver: yupResolver(formBuilder),
+        mode: 'onChange',
+        reValidateMode: 'onChange',
+        defaultValues: {
+            fullName: '',
+            email: '',
+            password: '',
+            passwordConfirmation: '',
+        },
+    });
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const onSubmit = (data) => {
@@ -35,12 +65,14 @@ const RegisterPage = () => {
                     label='Full Name'
                     control={control}
                     Component={TextInput}
+                    error={errors['fullName']}
                 />
                 <FormField
                     name='email'
                     label='Email'
                     control={control}
                     Component={TextInput}
+                    error={errors['email']}
                 />
                 <FormField
                     name='password'
@@ -48,6 +80,15 @@ const RegisterPage = () => {
                     control={control}
                     type='password'
                     Component={TextInput}
+                    error={errors['password']}
+                />
+                <FormField
+                    name='passwordConfirmation'
+                    label='Confirm Password'
+                    control={control}
+                    type='password'
+                    Component={TextInput}
+                    error={errors['passwordConfirmation']}
                 />
                 <Button variant='contained' className='w-full' type='submit'>
                     Sign Up
