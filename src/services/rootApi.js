@@ -1,8 +1,30 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { logOut } from '@redux/slices/authSlices';
+
+const baseQuery = fetchBaseQuery({
+    baseUrl: import.meta.env.VITE_BASE_URL,
+    prepareHeaders: (headers, { getState }) => {
+        const token = getState().auth.accessToken;
+        if (token) {
+            headers.set('Authorization', `Bearer ${token}`);
+        }
+        return headers;
+    },
+});
+
+const baseQueryWithForceLogout = async (args, api, extraOptions) => {
+    let result = await baseQuery(args, api, extraOptions);
+
+    if (result?.error?.status === 401) {
+        api.dispatch(logOut());
+        window.location.href = '/login';
+    }
+    return result;
+};
 
 export const rootApi = createApi({
     reducerPath: 'api',
-    baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_BASE_URL }),
+    baseQuery: baseQueryWithForceLogout,
     endpoints: (builder) => {
         return {
             register: builder.mutation({
@@ -19,8 +41,23 @@ export const rootApi = createApi({
                     method: 'POST',
                 }),
             }),
+            verifyOtp: builder.mutation({
+                query: ({ email, otp }) => ({
+                    url: '/verify-otp',
+                    body: { email, otp },
+                    method: 'POST',
+                }),
+            }),
+            getAuthUser: builder.query({
+                query: () => '/auth-user',
+            }),
         };
     },
 });
 
-export const { useRegisterMutation, useLoginMutation } = rootApi;
+export const {
+    useRegisterMutation,
+    useLoginMutation,
+    useVerifyOtpMutation,
+    useGetAuthUserQuery,
+} = rootApi;

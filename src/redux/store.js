@@ -1,14 +1,44 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import reducer from './slices/authSlices';
-import { rootApi } from '../services/rootApi';
+import { rootApi } from '@services/rootApi';
 import snakebarReducer from './slices/snakeBarSlices';
+import storage from 'redux-persist/lib/storage';
+import {
+    persistReducer,
+    FLUSH,
+    REHYDRATE,
+    PAUSE,
+    PERSIST,
+    PURGE,
+    REGISTER,
+    persistStore,
+} from 'redux-persist';
+import { logOutmiddleware } from './middlewares/middlewares';
 
-export const store = configureStore({
-    reducer: {
+const persistConfig = {
+    key: 'root',
+    version: 1,
+    storage,
+    blacklist: [rootApi.reducerPath],
+};
+
+const persistedReducer = persistReducer(
+    persistConfig,
+    combineReducers({
         auth: reducer,
         snakebar: snakebarReducer,
         [rootApi.reducerPath]: rootApi.reducer,
-    },
+    }),
+);
+
+export const store = configureStore({
+    reducer: persistedReducer,
     middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware().concat(rootApi.middleware),
+        getDefaultMiddleware({
+            serializableCheck: {
+                ignoreActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+            },
+        }).concat(logOutmiddleware, rootApi.middleware),
 });
+
+export const persistor = persistStore(store);
