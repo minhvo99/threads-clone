@@ -20,7 +20,8 @@ const OTPVeriyPage = () => {
     const location = useLocation();
     const [verifyOtp, { data, isLoading, error, isSuccess, isError }] =
         useVerifyOtpMutation();
-    const [resendOTP] = useLoginMutation();
+    const [resendOTP, { data: otpRespon, isSuccess: isResendSuccess }] =
+        useLoginMutation();
     const onSubmit = (data) => {
         verifyOtp({
             email: location?.state?.email || '',
@@ -34,6 +35,9 @@ const OTPVeriyPage = () => {
         });
     };
     useEffect(() => {
+        if (isResendSuccess) {
+            dispatch(openSnakeBar({ type: 'success', message: otpRespon?.message }));
+        }
         if (isError) {
             dispatch(openSnakeBar({ type: 'error', message: error?.data?.message }));
         }
@@ -41,7 +45,7 @@ const OTPVeriyPage = () => {
             dispatch(login(data));
             navigate('/');
         }
-    }, [isSuccess, navigate, dispatch, error, isError, data]);
+    }, [isSuccess, navigate, dispatch, error, isError, data, isResendSuccess, otpRespon]);
     return (
         <>
             <p className='mb-5 text-center text-2xl font-bold'>

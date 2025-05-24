@@ -19,16 +19,11 @@ const ProtectedLayout = () => {
     if (respon.isLoading) {
         return <Loading />;
     }
-    if (!accessToken || respon.isError) {
-        return <Navigate to='/login' replace />;
-    }
 
     return (
         <>
             <Header />
-            <div className='container'>
-                <Outlet />
-            </div>
+            <Outlet />
         </>
     );
 };
