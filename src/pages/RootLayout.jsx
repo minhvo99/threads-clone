@@ -11,7 +11,7 @@ const RootLayout = () => {
     const dispatch = useDispatch();
     const { open, message, type } = useSelector((state) => state.snakebar);
     return (
-        <>
+        <div className='text-dark-100'>
             <Suspense fallback={<Loading />}>
                 <Outlet />
             </Suspense>
@@ -25,7 +25,7 @@ const RootLayout = () => {
                     {message}
                 </Alert>
             </Snackbar>
-        </>
+        </div>
     );
 };
 

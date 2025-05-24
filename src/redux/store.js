@@ -14,12 +14,20 @@ import {
     persistStore,
 } from 'redux-persist';
 import { logOutmiddleware } from './middlewares/middlewares';
+import settingReducer from './slices/settingSlices';
+import dialogReducer from './slices/dialogSlice';
 
 const persistConfig = {
     key: 'root',
     version: 1,
     storage,
-    blacklist: [rootApi.reducerPath],
+    blacklist: [
+        rootApi.reducerPath,
+        // dialogReducer.reducerPath,
+        // settingReducer.reducerPath,
+        'dialog',
+        'settings',
+    ],
 };
 
 const persistedReducer = persistReducer(
@@ -27,6 +35,8 @@ const persistedReducer = persistReducer(
     combineReducers({
         auth: reducer,
         snakebar: snakebarReducer,
+        settings: settingReducer,
+        dialog: dialogReducer,
         [rootApi.reducerPath]: rootApi.reducer,
     }),
 );

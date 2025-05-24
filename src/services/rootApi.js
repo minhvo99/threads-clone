@@ -1,5 +1,5 @@
+import { login, logOut } from '@redux/slices/authSlices';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { logOut } from '@redux/slices/authSlices';
 
 const baseQuery = fetchBaseQuery({
     baseUrl: import.meta.env.VITE_BASE_URL,
@@ -12,19 +12,50 @@ const baseQuery = fetchBaseQuery({
     },
 });
 
-const baseQueryWithForceLogout = async (args, api, extraOptions) => {
+const baseQueryWithReAuth = async (args, api, extraOptions) => {
+    // api: getState() is used to access the current state of the store, dispatch() is used to dispatch actions
+    // baseQuery: the original base query function that performs the actual HTTP request
+    // extraOptions: used to pass additional options to the base query
+    // args: the arguments passed to the query or mutation
     let result = await baseQuery(args, api, extraOptions);
 
-    if (result?.error?.status === 401) {
-        api.dispatch(logOut());
-        window.location.href = '/login';
+    if (
+        result?.error?.status === 401 &&
+        result?.error?.data?.message === 'Token has expired.'
+    ) {
+        const refreshToken = api.getState().auth.refreshToken;
+        if (refreshToken) {
+            const refreshResult = await baseQuery(
+                {
+                    url: '/refresh-token',
+                    method: 'POST',
+                    body: { refreshToken },
+                },
+                api,
+                extraOptions,
+            );
+            const newAccessToken = refreshResult?.data?.accessToken;
+
+            if (newAccessToken) {
+                api.dispatch(
+                    login({
+                        accessToken: newAccessToken,
+                        refreshToken,
+                    }),
+                );
+                result = await baseQuery(args, api, extraOptions);
+            } else {
+                api.dispatch(logOut());
+                window.location.href = '/login';
+            }
+        }
     }
     return result;
 };
 
 export const rootApi = createApi({
     reducerPath: 'api',
-    baseQuery: baseQueryWithForceLogout,
+    baseQuery: baseQueryWithReAuth,
     endpoints: (builder) => {
         return {
             register: builder.mutation({
@@ -48,8 +79,38 @@ export const rootApi = createApi({
                     method: 'POST',
                 }),
             }),
+            refreshToken: builder.mutation({
+                query: (refreshToken) => ({
+                    url: '/refresh-token',
+                    method: 'POST',
+                    body: { refreshToken },
+                }),
+            }),
             getAuthUser: builder.query({
                 query: () => '/auth-user',
+            }),
+            createPost: builder.mutation({
+                query: (formData) => ({
+                    url: '/posts',
+                    method: 'POST',
+                    body: formData,
+                }),
+                invalidatesTags: ['newPost'],
+            }),
+            getPosts: builder.query({
+                query: ({ limits, offset } = {}) => {
+                    return {
+                        url: '/posts',
+                        params: {
+                            limits,
+                            offset,
+                        },
+                    };
+                },
+                providesTags: ['newPost'],
+            }),
+            getPostById: builder.query({
+                query: (id) => `/posts/${id}`,
             }),
         };
     },
@@ -60,4 +121,8 @@ export const {
     useLoginMutation,
     useVerifyOtpMutation,
     useGetAuthUserQuery,
+    useCreatePostMutation,
+    useRefreshTokenMutation,
+    useGetPostsQuery,
+    useGetPostByIdQuery,
 } = rootApi;
