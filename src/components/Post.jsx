@@ -3,6 +3,7 @@ import { Avatar, Button } from '@mui/material';
 import { getAvatar, stringAvatar } from '@utils/stringAvatar';
 import dayjs from 'dayjs';
 import React from 'react';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 
 const Post = ({ userInfo, createAt, content, image, comments, likes }) => {
     return (
@@ -24,7 +25,7 @@ const Post = ({ userInfo, createAt, content, image, comments, likes }) => {
             {image && <img src={image} alt='Post image' />}
             <div className='mt-2 flex justify-between'>
                 <div className='flex gap-1 text-sm'>
-                    <Favorite fontSize='small' className='text-primary' />
+                    <Favorite fontSize='small' className='text-primary text-red-500' />
                     <p>{likes?.length}</p>
                 </div>
                 <div className='text-sm'>
@@ -33,10 +34,10 @@ const Post = ({ userInfo, createAt, content, image, comments, likes }) => {
             </div>
             <div className='border-dark-300 flex border-t border-b py-1 text-sm'>
                 <Button size='small' className='!text-dark-100 flex-1'>
-                    <Favorite fontSize='small' className='mr-1' /> Like
+                    <FavoriteBorderIcon fontSize='small' className='mr-1 text-red-500' />
                 </Button>
                 <Button size='small' className='!text-dark-100 flex-1'>
-                    <Comment fontSize='small' className='mr-1' /> Comment
+                    <Comment fontSize='small' className='mr-1' />
                 </Button>
             </div>
         </div>
