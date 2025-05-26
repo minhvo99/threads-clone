@@ -17,6 +17,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 import Loading from '@components/Loading';
 import { persistor } from '@redux/store';
 import Dialog from '@components/Dialog';
+import SearchPage from '@pages/SearchPage';
 const Home = lazy(() => import('@pages/Home'));
 
 const router = createBrowserRouter([
@@ -29,6 +30,10 @@ const router = createBrowserRouter([
                     {
                         path: '/',
                         element: <Home />,
+                    },
+                    {
+                        path: '/search/users',
+                        element: <SearchPage />,
                     },
                 ],
             },

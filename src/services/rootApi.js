@@ -19,35 +19,36 @@ const baseQueryWithReAuth = async (args, api, extraOptions) => {
     // args: the arguments passed to the query or mutation
     let result = await baseQuery(args, api, extraOptions);
 
-    if (
-        result?.error?.status === 401 &&
-        result?.error?.data?.message === 'Token has expired.'
-    ) {
-        const refreshToken = api.getState().auth.refreshToken;
-        if (refreshToken) {
-            const refreshResult = await baseQuery(
-                {
-                    url: '/refresh-token',
-                    method: 'POST',
-                    body: { refreshToken },
-                },
-                api,
-                extraOptions,
-            );
-            const newAccessToken = refreshResult?.data?.accessToken;
-
-            if (newAccessToken) {
-                api.dispatch(
-                    login({
-                        accessToken: newAccessToken,
-                        refreshToken,
-                    }),
+    if (result?.error?.status === 401) {
+        if (result?.error?.data?.message === 'Token has expired.') {
+            const refreshToken = api.getState().auth.refreshToken;
+            if (refreshToken) {
+                const refreshResult = await baseQuery(
+                    {
+                        url: '/refresh-token',
+                        method: 'POST',
+                        body: { refreshToken },
+                    },
+                    api,
+                    extraOptions,
                 );
-                result = await baseQuery(args, api, extraOptions);
-            } else {
-                api.dispatch(logOut());
-                window.location.href = '/login';
+                const newAccessToken = refreshResult?.data?.accessToken;
+
+                if (newAccessToken) {
+                    api.dispatch(
+                        login({
+                            accessToken: newAccessToken,
+                            refreshToken,
+                        }),
+                    );
+                    result = await baseQuery(args, api, extraOptions);
+                } else {
+                    api.dispatch(logOut());
+                    window.location.href = '/login';
+                }
             }
+        } else {
+            window.location.href = '/login';
         }
     }
     return result;
@@ -56,6 +57,7 @@ const baseQueryWithReAuth = async (args, api, extraOptions) => {
 export const rootApi = createApi({
     reducerPath: 'api',
     baseQuery: baseQueryWithReAuth,
+    tagTypes: ['POSTS', 'USERS'],
     endpoints: (builder) => {
         return {
             register: builder.mutation({
@@ -95,7 +97,7 @@ export const rootApi = createApi({
                     method: 'POST',
                     body: formData,
                 }),
-                invalidatesTags: ['newPost'],
+                invalidatesTags: ['POSTS'],
             }),
             getPosts: builder.query({
                 query: ({ limits, offset } = {}) => {
@@ -107,10 +109,54 @@ export const rootApi = createApi({
                         },
                     };
                 },
-                providesTags: ['newPost'],
+                providesTags: ['POSTS'],
             }),
             getPostById: builder.query({
                 query: (id) => `/posts/${id}`,
+            }),
+            searchUsers: builder.query({
+                query: ({ limtis, offset, searchTerm }) => {
+                    const encodedQuery = encodeURIComponent(searchTerm.trim());
+                    return {
+                        url: `/search/users/${encodedQuery}`,
+                        params: {
+                            limtis,
+                            offset,
+                        },
+                        method: 'GET',
+                    };
+                },
+                providesTags: (result) =>
+                    result
+                        ? [
+                              ...result.users.map(({ _id }) => ({
+                                  type: 'USERS',
+                                  id: _id,
+                              })),
+                              { type: 'USERS', id: 'LIST' },
+                          ]
+                        : [{ type: 'USERS', id: 'LIST' }],
+            }),
+            sendFriendRequest: builder.mutation({
+                query: (userId) => ({
+                    url: '/friends/request',
+                    method: 'POST',
+                    body: { friendId: userId },
+                }),
+                invalidatesTags: (result, error, agrs) => [{ type: 'USERS', id: agrs }],
+            }),
+            getPeddingFriendRequests: builder.query({
+                query: () => '/friends/pending',
+                providesTags: (result) =>
+                    result
+                        ? [
+                              ...result.map(({ _id }) => ({
+                                  type: 'PEDDING_FRIEND-REQUEST',
+                                  id: _id,
+                              })),
+                              { type: 'PEDDING_FRIEND-REQUEST', id: 'LIST' },
+                          ]
+                        : [{ type: 'PEDDING_FRIEND-REQUEST', id: 'LIST' }],
             }),
         };
     },
@@ -125,4 +171,7 @@ export const {
     useRefreshTokenMutation,
     useGetPostsQuery,
     useGetPostByIdQuery,
+    useSearchUsersQuery,
+    useSendFriendRequestMutation,
+    useGetPeddingFriendRequestsQuery,
 } = rootApi;

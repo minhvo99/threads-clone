@@ -5,6 +5,7 @@ import Loading from '@components/Loading';
 import { useDispatch, useSelector } from 'react-redux';
 import { saveUserInfor } from '@redux/slices/authSlices';
 import Header from '@components/Header';
+import SocketProvider from '@context/SocketProvider';
 
 const ProtectedLayout = () => {
     const dispatch = useDispatch();
@@ -21,10 +22,14 @@ const ProtectedLayout = () => {
     }
 
     return (
-        <>
-            <Header />
-            <Outlet />
-        </>
+        <SocketProvider>
+            <div>
+                <Header />
+                <div className='bg-dark-200'>
+                    <Outlet />
+                </div>
+            </div>
+        </SocketProvider>
     );
 };
 
