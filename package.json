@@ -19,6 +19,7 @@
     "@reduxjs/toolkit": "^2.8.2",
     "dayjs": "^1.11.13",
     "framer-motion": "^12.12.2",
+    "lodash": "^4.17.21",
     "mui-one-time-password-input": "^5.0.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
