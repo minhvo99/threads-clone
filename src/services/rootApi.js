@@ -16,7 +16,7 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
     let result = await baseQuery(args, api, extraOptions);
     console.log('baseQueryWithForceLogout', { result });
 
-    if (result?.error?.status === 401) {
+    if (result?.error?.status === 401 || result?.error?.status === 'FETCH_ERROR') {
         if (result?.error?.data?.message === 'Token has expired.') {
             const refreshToken = api.getState().auth.refreshToken;
 
