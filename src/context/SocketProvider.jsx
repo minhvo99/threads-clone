@@ -6,6 +6,7 @@ import { io } from 'socket.io-client';
 export const socket = io('https://api.holetex.com', {
     autoConnect: false,
     path: '/v1/we-connect/socket.io',
+    transports: ['websocket'],
 });
 
 const SocketContext = createContext();

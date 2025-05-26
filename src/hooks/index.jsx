@@ -39,6 +39,7 @@ export const useLazyLoadPosts = () => {
     const { data, isSuccess, isFetching } = useGetPostsQuery({ offset, limit });
 
     const previousDataRef = useRef();
+    const addedPostIds = useRef(new Set());
 
     useEffect(() => {
         if (isSuccess && data && previousDataRef.current !== data) {
@@ -47,7 +48,15 @@ export const useLazyLoadPosts = () => {
                 return;
             }
             previousDataRef.current = data;
-            setPosts((prevPosts) => [...prevPosts, ...data]);
+            // Filter out posts that already exist
+            const newPosts = data.filter((post) => !addedPostIds.current.has(post._id));
+            if (newPosts.length > 0) {
+                // Add new post IDs to tracking set
+                newPosts.forEach((post) => addedPostIds.current.add(post._id));
+                // setPosts((prevPosts) => [...prevPosts, ...data]);
+
+                setPosts((prevPosts) => [...prevPosts, ...newPosts]);
+            }
         }
     }, [data, isSuccess]);
 

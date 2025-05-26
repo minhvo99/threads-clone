@@ -57,7 +57,7 @@ const baseQueryWithReAuth = async (args, api, extraOptions) => {
 export const rootApi = createApi({
     reducerPath: 'api',
     baseQuery: baseQueryWithReAuth,
-    tagTypes: ['POSTS', 'USERS'],
+    tagTypes: ['POSTS', 'USERS', 'PEDDING_FRIEND-REQUEST'],
     endpoints: (builder) => {
         return {
             register: builder.mutation({
@@ -158,6 +158,39 @@ export const rootApi = createApi({
                           ]
                         : [{ type: 'PEDDING_FRIEND-REQUEST', id: 'LIST' }],
             }),
+            acceptFriendRequest: builder.mutation({
+                query: (userId) => ({
+                    url: `/friends/accept`,
+                    method: 'POST',
+                    body: { friendId: userId },
+                }),
+                invalidatesTags: (result, error, agrs) => [
+                    { type: 'USERS', id: agrs },
+                    { type: 'PEDDING_FRIEND-REQUEST', id: agrs },
+                ],
+            }),
+            cancelFriendRequest: builder.mutation({
+                query: (userId) => ({
+                    url: `/friends/cancel`,
+                    method: 'POST',
+                    body: { friendId: userId },
+                }),
+                invalidatesTags: (result, error, agrs) => [
+                    { type: 'USERS', id: agrs },
+                    { type: 'PEDDING_FRIEND-REQUEST', id: agrs },
+                ],
+            }),
+            unfriend: builder.mutation({
+                query: (userId) => ({
+                    url: `/friends/unfriend`,
+                    method: 'POST',
+                    body: { friendId: userId },
+                }),
+                invalidatesTags: (result, error, agrs) => [
+                    { type: 'USERS', id: agrs },
+                    { type: 'PEDDING_FRIEND-REQUEST', id: agrs },
+                ],
+            }),
         };
     },
 });
@@ -174,4 +207,7 @@ export const {
     useSearchUsersQuery,
     useSendFriendRequestMutation,
     useGetPeddingFriendRequestsQuery,
+    useAcceptFriendRequestMutation,
+    useCancelFriendRequestMutation,
+    useUnfriendMutation,
 } = rootApi;
