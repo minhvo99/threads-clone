@@ -6,14 +6,23 @@ import {
     PersonAdd,
     PersonAddAlt,
 } from '@mui/icons-material';
-import { Avatar, Button, CircularProgress } from '@mui/material';
-import { useSendFriendRequestMutation } from '@services/rootApi';
+import { Avatar, CircularProgress } from '@mui/material';
+import {
+    useAcceptFriendRequestMutation,
+    useCancelFriendRequestMutation,
+    useSendFriendRequestMutation,
+} from '@services/rootApi';
 import { getAvatar, stringAvatar } from '@utils/stringAvatar';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Button from './Button';
 
-const UserCard = ({ userInfo, isFriend, requestSent, requestReceived }) => {
+const UserCard = ({ userInfo, isFriend, requestSent, requestReceived, id }) => {
     const [sendFriendRequest, { isLoading }] = useSendFriendRequestMutation();
+    const [acceptFriendRequest, { isLoading: acceptLoading }] =
+        useAcceptFriendRequestMutation();
+    const [cancelFriendRequest, { isLoading: cancelLoading }] =
+        useCancelFriendRequestMutation();
 
     const getActionButton = () => {
         if (isFriend) {
@@ -22,8 +31,8 @@ const UserCard = ({ userInfo, isFriend, requestSent, requestReceived }) => {
                     variant='contained'
                     size='small'
                     className='flex items-center justify-between'
+                    icon={<MessageOutlined className='mr-1' fontSize='small' />}
                 >
-                    <MessageOutlined className='mr-1' fontSize='small' />
                     Message
                 </Button>
             );
@@ -34,8 +43,8 @@ const UserCard = ({ userInfo, isFriend, requestSent, requestReceived }) => {
                     variant='outlined'
                     size='small'
                     className='flex items-center justify-between'
+                    icon={<Check className='mr-1' fontSize='small' />}
                 >
-                    <Check className='mr-1' fontSize='small' />
                     Request Sent
                 </Button>
             );
@@ -44,19 +53,23 @@ const UserCard = ({ userInfo, isFriend, requestSent, requestReceived }) => {
             return (
                 <div>
                     <Button
-                        variant='outlined'
+                        variant='contained'
                         size='small'
-                        className='flex items-center justify-between'
+                        className='mr-2 flex items-center justify-between'
+                        onClick={() => acceptFriendRequest(id)}
+                        isLoading={acceptLoading}
+                        icon={<Check className='mr-1' fontSize='small' />}
                     >
-                        <PersonAddAlt className='mr-1' fontSize='small' />
-                        Accept Request
+                        Accept
                     </Button>
                     <Button
                         variant='outlined'
                         size='small'
                         className='flex items-center justify-between'
+                        onClick={() => cancelFriendRequest(id)}
+                        isLoading={cancelLoading}
+                        icon={<Cancel className='mr-1' fontSize='small' />}
                     >
-                        <Cancel className='mr-1' fontSize='small' />
                         Cancel
                     </Button>
                 </div>
@@ -73,18 +86,10 @@ const UserCard = ({ userInfo, isFriend, requestSent, requestReceived }) => {
                         receiverId: userInfo._id,
                     });
                 }}
-                disabled={isLoading}
+                isLoading={isLoading}
+                icon={<PersonAdd className='mr-1' fontSize='small' />}
             >
-                {isLoading ? (
-                    <>
-                        <CircularProgress className='mr-1 animate-spin' size='24px' />
-                        Sending
-                    </>
-                ) : (
-                    <>
-                        <PersonAdd className='mr-1' fontSize='small' /> Add Friend
-                    </>
-                )}
+                Add Friend
             </Button>
         );
     };
