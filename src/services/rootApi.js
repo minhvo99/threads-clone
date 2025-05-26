@@ -50,7 +50,6 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
         } else {
             window.location.href = '/login';
         }
-        window.location.href = '/login';
     }
 
     return result;
