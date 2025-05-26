@@ -20,7 +20,7 @@ import Divider from '@mui/material/Divider';
 // import { useDispatch } from 'react-redux';
 
 import { Notifications, Search, Menu as MenuIcon } from '@mui/icons-material';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { toggleDrawer } from '@redux/slices/settingSlices';
 import { getAvatar, stringAvatar } from '@utils/stringAvatar';
@@ -120,6 +120,8 @@ const Header = () => {
     const { handleLogOut } = useLogOut();
     const { isMediumLayout } = useDetectLayout();
     const dispatch = useDispatch();
+    const [searchTerm, setSearchTerm] = useState('');
+    const navigate = useNavigate();
 
     const handleMenuClose = () => {
         setAnchorEl(null);
@@ -151,8 +153,8 @@ const Header = () => {
 
     return (
         <div>
-            <AppBar color='white' position='static' className='py-4'>
-                <Toolbar className='!min-h-fit justify-between'>
+            <AppBar color='white' position='static'>
+                <Toolbar className='container !min-h-fit justify-between'>
                     {isMediumLayout ? (
                         <IconButton onClick={() => dispatch(toggleDrawer())}>
                             <MenuIcon />
@@ -171,6 +173,19 @@ const Header = () => {
                                     slotProps={{
                                         input: { className: 'h-10 px-3 py-2' },
                                         htmlInput: { className: '!p-0' },
+                                    }}
+                                    value={searchTerm}
+                                    onChange={(e) => {
+                                        setSearchTerm(e.target.value);
+                                    }}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            navigate('/search/users', {
+                                                state: {
+                                                    searchTerm,
+                                                },
+                                            });
+                                        }
                                     }}
                                     sx={{
                                         '.MuiInputBase-root::before': {

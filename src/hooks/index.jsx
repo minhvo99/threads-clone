@@ -47,9 +47,7 @@ export const useLazyLoadPosts = () => {
                 return;
             }
             previousDataRef.current = data;
-            setPosts((prevPosts) => {
-                return [...prevPosts, ...data];
-            });
+            setPosts((prevPosts) => [...prevPosts, ...data]);
         }
     }, [data, isSuccess]);
 
@@ -75,7 +73,6 @@ export const useInfiniteScroll = ({
 }) => {
     const handleScroll = useMemo(() => {
         return throttle(() => {
-            console.log('SCROLLINGGG');
             if (!hasMore) {
                 return;
             }
