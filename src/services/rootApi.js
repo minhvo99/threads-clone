@@ -12,26 +12,25 @@ const baseQuery = fetchBaseQuery({
     },
 });
 
-const baseQueryWithReAuth = async (args, api, extraOptions) => {
-    // api: getState() is used to access the current state of the store, dispatch() is used to dispatch actions
-    // baseQuery: the original base query function that performs the actual HTTP request
-    // extraOptions: used to pass additional options to the base query
-    // args: the arguments passed to the query or mutation
+const baseQueryWithReauth = async (args, api, extraOptions) => {
     let result = await baseQuery(args, api, extraOptions);
+    console.log('baseQueryWithForceLogout', { result });
 
     if (result?.error?.status === 401) {
         if (result?.error?.data?.message === 'Token has expired.') {
             const refreshToken = api.getState().auth.refreshToken;
+
             if (refreshToken) {
                 const refreshResult = await baseQuery(
                     {
                         url: '/refresh-token',
-                        method: 'POST',
                         body: { refreshToken },
+                        method: 'POST',
                     },
                     api,
                     extraOptions,
                 );
+
                 const newAccessToken = refreshResult?.data?.accessToken;
 
                 if (newAccessToken) {
@@ -41,6 +40,7 @@ const baseQueryWithReAuth = async (args, api, extraOptions) => {
                             refreshToken,
                         }),
                     );
+
                     result = await baseQuery(args, api, extraOptions);
                 } else {
                     api.dispatch(logOut());
@@ -50,13 +50,15 @@ const baseQueryWithReAuth = async (args, api, extraOptions) => {
         } else {
             window.location.href = '/login';
         }
+        window.location.href = '/login';
     }
+
     return result;
 };
 
 export const rootApi = createApi({
     reducerPath: 'api',
-    baseQuery: baseQueryWithReAuth,
+    baseQuery: baseQueryWithReauth,
     tagTypes: ['POSTS', 'USERS', 'PEDDING_FRIEND-REQUEST'],
     endpoints: (builder) => {
         return {
