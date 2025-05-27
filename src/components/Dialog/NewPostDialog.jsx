@@ -61,12 +61,7 @@ const NewPostDialog = ({ userInfo }) => {
                 />
             </DialogContent>
             <DialogActions className='!px-6 !pt-5 !pb-5'>
-                <Button
-                    fullWidth
-                    variant='contained'
-                    disabled={!content || !image}
-                    onClick={handleCreateNewPost}
-                >
+                <Button fullWidth variant='contained' onClick={handleCreateNewPost}>
                     {isLoading && (
                         <CircularProgress color='#ffffff' size='16px' className='mr-1' />
                     )}

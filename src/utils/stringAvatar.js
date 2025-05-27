@@ -30,7 +30,7 @@ export const getAvatar = (userInfor) => {
     let avatar, name;
 
     if (userInfor) {
-        avatar = userInfor.avatar ? userInfor.avatar : null;
+        avatar = userInfor.image ? userInfor.image : null;
         name = userInfor?.avatar ? null : stringAvatar(userInfor?.fullName || '');
     }
     return { avatar, name };

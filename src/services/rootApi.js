@@ -93,24 +93,75 @@ export const rootApi = createApi({
                 query: () => '/auth-user',
             }),
             createPost: builder.mutation({
-                query: (formData) => ({
-                    url: '/posts',
-                    method: 'POST',
-                    body: formData,
-                }),
-                invalidatesTags: ['POSTS'],
-            }),
-            getPosts: builder.query({
-                query: ({ limits, offset } = {}) => {
+                query: (formData) => {
                     return {
                         url: '/posts',
-                        params: {
-                            limits,
-                            offset,
-                        },
+                        method: 'POST',
+                        body: formData,
                     };
                 },
-                providesTags: ['POSTS'],
+                //optimistic update: this is a way to update the UI immediately without waiting for the server response
+                onQueryStarted: async (args, { dispatch, queryFulfilled, getState }) => {
+                    const store = getState(); //get the current state of the store
+                    const tempId = crypto.randomUUID();
+                    const newPost = {
+                        _id: tempId,
+                        likes: [],
+                        comments: [],
+                        content: args.get('content'),
+                        author: {
+                            notifications: [],
+                            _id: store.auth.userInfor._id,
+                            fullName: store.auth.userInfor.fullName,
+                        },
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                        __v: 0,
+                    };
+
+                    const patchResult = dispatch(
+                        rootApi.util.updateQueryData(
+                            'getPosts',
+                            { limit: 10, offset: 0 },
+                            (draft) => {
+                                //draft: data catching in redux store
+                                draft.unshift(newPost);
+                            },
+                        ),
+                    );
+
+                    try {
+                        const { data } = await queryFulfilled; // promise that resolves when the query is fulfilled
+                        console.log({ data });
+                        dispatch(
+                            rootApi.util.updateQueryData(
+                                'getPosts',
+                                { limit: 10, offset: 0 },
+                                (draft) => {
+                                    const index = draft.findIndex(
+                                        (post) => post._id === tempId,
+                                    );
+                                    if (index !== -1) {
+                                        draft[index] = data;
+                                    }
+                                },
+                            ),
+                        );
+                    } catch (err) {
+                        console.log('failed to create new post', err);
+                        patchResult.undo();
+                    }
+                },
+                // invalidatesTags: ['POSTS'],
+            }),
+            getPosts: builder.query({
+                query: ({ limit, offset } = {}) => {
+                    return {
+                        url: '/posts',
+                        params: { limit, offset },
+                    };
+                },
+                providesTags: [{ type: 'POSTS' }],
             }),
             getPostById: builder.query({
                 query: (id) => `/posts/${id}`,

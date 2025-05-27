@@ -39,8 +39,6 @@ export const useLazyLoadPosts = () => {
     const { data, isSuccess, isFetching } = useGetPostsQuery({ offset, limit });
 
     const previousDataRef = useRef();
-    const addedPostIds = useRef(new Set());
-
     useEffect(() => {
         if (isSuccess && data && previousDataRef.current !== data) {
             if (!data.length) {
@@ -48,17 +46,12 @@ export const useLazyLoadPosts = () => {
                 return;
             }
             previousDataRef.current = data;
-            // Filter out posts that already exist
-            const newPosts = data.filter((post) => !addedPostIds.current.has(post._id));
-            if (newPosts.length > 0) {
-                // Add new post IDs to tracking set
-                newPosts.forEach((post) => addedPostIds.current.add(post._id));
-                // setPosts((prevPosts) => [...prevPosts, ...data]);
-
-                setPosts((prevPosts) => [...prevPosts, ...newPosts]);
-            }
+            setPosts((prevPosts) => {
+                if (offset === 0) return data;
+                return [...prevPosts, ...data];
+            });
         }
-    }, [data, isSuccess]);
+    }, [data, isSuccess, offset]);
 
     const loadMore = useCallback(() => {
         setOffset((offset) => offset + limit);
@@ -68,6 +61,12 @@ export const useLazyLoadPosts = () => {
         hasMore,
         loadMore,
         isFetching,
+        offset,
+        resetFn: () => {
+            setOffset(0);
+            setHasMore(true);
+            previousDataRef.current = null;
+        },
     });
 
     return { isFetching, posts };
@@ -77,23 +76,31 @@ export const useInfiniteScroll = ({
     hasMore,
     loadMore,
     isFetching,
+    offset,
+    resetFn,
     threshold = 50,
     throttleMs = 500,
 }) => {
     const handleScroll = useMemo(() => {
         return throttle(() => {
-            if (!hasMore) {
-                return;
-            }
             const scrollTop = document.documentElement.scrollTop; // b
             const scrollHeight = document.documentElement.scrollHeight; // a
             const clientHeight = document.documentElement.clientHeight; // c
+
+            if (scrollTop < 100 && offset > 0) {
+                resetFn();
+                return;
+            }
+
+            if (!hasMore) {
+                return;
+            }
 
             if (clientHeight + scrollTop + threshold >= scrollHeight && !isFetching) {
                 loadMore();
             }
         }, throttleMs);
-    }, [hasMore, isFetching, loadMore, threshold, throttleMs]);
+    }, [hasMore, isFetching, loadMore, threshold, throttleMs, offset, resetFn]);
 
     useEffect(() => {
         window.addEventListener('scroll', handleScroll);

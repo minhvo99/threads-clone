@@ -9,7 +9,7 @@ const SearchPage = () => {
     const location = useLocation();
     const { _id } = useUserInfor();
     const { data, isFetching } = useSearchUsersQuery({
-        limits: 10,
+        limit: 10,
         offset: 0,
         searchTerm: location.state?.searchTerm || '',
     });
