@@ -1,9 +1,11 @@
 import Post from './Post';
 import Loading from './Loading';
 import { useLazyLoadPosts } from '@hooks/index';
+import { useLikePostMutation } from '@services/postAPI';
 
 const PostList = () => {
     const { hasMore, isFetching, posts } = useLazyLoadPosts();
+    const [likePost] = useLikePostMutation();
 
     return (
         <div className='flex flex-col gap-4'>
@@ -16,6 +18,10 @@ const PostList = () => {
                     image={post?.image}
                     comments={post?.comments}
                     likes={post?.likes}
+                    id={post._id}
+                    onLike={() => {
+                        likePost(post._id);
+                    }}
                 />
             ))}
             {isFetching && <Loading />}

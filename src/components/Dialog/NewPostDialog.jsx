@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { closeDialog } from '@redux/slices/dialogSlice';
 import { openSnakeBar } from '@redux/slices/snakeBarSlices';
-import { useCreatePostMutation } from '@services/rootApi';
+import { useCreatePostMutation } from '@services/postAPI';
 import { getAvatar, stringAvatar } from '@utils/stringAvatar';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';

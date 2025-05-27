@@ -5,7 +5,16 @@ import dayjs from 'dayjs';
 import React from 'react';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 
-const Post = ({ userInfo, createAt, content, image, comments, likes }) => {
+const Post = ({
+    userInfo,
+    createAt,
+    content,
+    image,
+    comments,
+    likes,
+    onLike = () => {},
+    id,
+}) => {
     return (
         <div className='card'>
             <div className='my-3 flex gap-3'>
@@ -33,7 +42,11 @@ const Post = ({ userInfo, createAt, content, image, comments, likes }) => {
                 </div>
             </div>
             <div className='border-dark-300 flex border-t border-b py-1 text-sm'>
-                <Button size='small' className='!text-dark-100 flex-1'>
+                <Button
+                    size='small'
+                    className='!text-dark-100 flex-1'
+                    onClick={() => onLike(id)}
+                >
                     <FavoriteBorderIcon fontSize='small' className='mr-1 text-red-500' />
                 </Button>
                 <Button size='small' className='!text-dark-100 flex-1'>
