@@ -7,7 +7,7 @@ import { useMediaQuery } from '@mui/material';
 
 import { useSelector } from 'react-redux';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useGetPostsQuery } from '@services/rootApi';
+import { useGetPostsQuery } from '@services/postAPI';
 import { throttle } from 'lodash';
 export const useLogOut = () => {
     const dispatch = useDispatch();

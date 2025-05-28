@@ -8,7 +8,6 @@ export default [
     { ignores: ['dist'] },
     {
         files: ['**/*.{js,jsx}'],
-        ...jest.configs['flat/recommended'],
         languageOptions: {
             ecmaVersion: 2020,
             globals: globals.browser,
@@ -31,5 +30,12 @@ export default [
                 { allowConstantExport: true },
             ],
         },
+    },
+    {
+        files: ['**/*.spec.js', '**/*.test.js'],
+        // env: {
+        //     jest: true,
+        // },
+        ...pluginJest.configs['flat/recommended'],
     },
 ];

@@ -63,6 +63,14 @@ export const rootApi = createApi({
     reducerPath: 'api',
     baseQuery: baseQueryWithReauth,
     tagTypes: ['POSTS', 'USERS', 'PEDDING_FRIEND-REQUEST'],
+    /* cach 1: 
+        keepUnusedDataFor: 20, // sau 20s, nếu không có request nào thì sẽ xóa dữ liệu khỏi cache
+        cach 2:
+        refetchOnMountOrArgChange : true, // khi component mount lại hoặc khi tham số thay đổi thì sẽ refetch dữ liệu
+        refetchOnMountOrArgChange: 10, // sau 10s, nếu không có request nào thì sẽ refetch dữ liệu
+    */
+    // refetchOnFocus: true, // khi tab được focus lại thì sẽ refetch dữ liệu,
+    // refetchOnReconnect: true, // khi kết nối lại thì sẽ refetch dữ liệu
     endpoints: (builder) => {
         return {
             register: builder.mutation({
@@ -96,80 +104,7 @@ export const rootApi = createApi({
             getAuthUser: builder.query({
                 query: () => '/auth-user',
             }),
-            createPost: builder.mutation({
-                query: (formData) => {
-                    return {
-                        url: '/posts',
-                        method: 'POST',
-                        body: formData,
-                    };
-                },
-                //optimistic update: this is a way to update the UI immediately without waiting for the server response
-                onQueryStarted: async (args, { dispatch, queryFulfilled, getState }) => {
-                    const store = getState(); //get the current state of the store
-                    const tempId = crypto.randomUUID();
-                    const newPost = {
-                        _id: tempId,
-                        likes: [],
-                        comments: [],
-                        content: args.get('content'),
-                        author: {
-                            notifications: [],
-                            _id: store.auth.userInfor._id,
-                            fullName: store.auth.userInfor.fullName,
-                        },
-                        createdAt: new Date().toISOString(),
-                        updatedAt: new Date().toISOString(),
-                        __v: 0,
-                    };
 
-                    const patchResult = dispatch(
-                        rootApi.util.updateQueryData(
-                            'getPosts',
-                            { limit: 10, offset: 0 },
-                            (draft) => {
-                                //draft: data catching in redux store
-                                draft.unshift(newPost);
-                            },
-                        ),
-                    );
-
-                    try {
-                        const { data } = await queryFulfilled; // promise that resolves when the query is fulfilled
-                        console.log({ data });
-                        dispatch(
-                            rootApi.util.updateQueryData(
-                                'getPosts',
-                                { limit: 10, offset: 0 },
-                                (draft) => {
-                                    const index = draft.findIndex(
-                                        (post) => post._id === tempId,
-                                    );
-                                    if (index !== -1) {
-                                        draft[index] = data;
-                                    }
-                                },
-                            ),
-                        );
-                    } catch (err) {
-                        console.log('failed to create new post', err);
-                        patchResult.undo();
-                    }
-                },
-                // invalidatesTags: ['POSTS'],
-            }),
-            getPosts: builder.query({
-                query: ({ limit, offset } = {}) => {
-                    return {
-                        url: '/posts',
-                        params: { limit, offset },
-                    };
-                },
-                providesTags: [{ type: 'POSTS' }],
-            }),
-            getPostById: builder.query({
-                query: (id) => `/posts/${id}`,
-            }),
             searchUsers: builder.query({
                 query: ({ limtis, offset, searchTerm }) => {
                     const encodedQuery = encodeURIComponent(searchTerm.trim());
@@ -193,60 +128,6 @@ export const rootApi = createApi({
                           ]
                         : [{ type: 'USERS', id: 'LIST' }],
             }),
-            sendFriendRequest: builder.mutation({
-                query: (userId) => ({
-                    url: '/friends/request',
-                    method: 'POST',
-                    body: { friendId: userId },
-                }),
-                invalidatesTags: (result, error, agrs) => [{ type: 'USERS', id: agrs }],
-            }),
-            getPeddingFriendRequests: builder.query({
-                query: () => '/friends/pending',
-                providesTags: (result) =>
-                    result
-                        ? [
-                              ...result.map(({ _id }) => ({
-                                  type: 'PEDDING_FRIEND-REQUEST',
-                                  id: _id,
-                              })),
-                              { type: 'PEDDING_FRIEND-REQUEST', id: 'LIST' },
-                          ]
-                        : [{ type: 'PEDDING_FRIEND-REQUEST', id: 'LIST' }],
-            }),
-            acceptFriendRequest: builder.mutation({
-                query: (userId) => ({
-                    url: `/friends/accept`,
-                    method: 'POST',
-                    body: { friendId: userId },
-                }),
-                invalidatesTags: (result, error, agrs) => [
-                    { type: 'USERS', id: agrs },
-                    { type: 'PEDDING_FRIEND-REQUEST', id: agrs },
-                ],
-            }),
-            cancelFriendRequest: builder.mutation({
-                query: (userId) => ({
-                    url: `/friends/cancel`,
-                    method: 'POST',
-                    body: { friendId: userId },
-                }),
-                invalidatesTags: (result, error, agrs) => [
-                    { type: 'USERS', id: agrs },
-                    { type: 'PEDDING_FRIEND-REQUEST', id: agrs },
-                ],
-            }),
-            unfriend: builder.mutation({
-                query: (userId) => ({
-                    url: `/friends/unfriend`,
-                    method: 'POST',
-                    body: { friendId: userId },
-                }),
-                invalidatesTags: (result, error, agrs) => [
-                    { type: 'USERS', id: agrs },
-                    { type: 'PEDDING_FRIEND-REQUEST', id: agrs },
-                ],
-            }),
         };
     },
 });
@@ -256,14 +137,6 @@ export const {
     useLoginMutation,
     useVerifyOtpMutation,
     useGetAuthUserQuery,
-    useCreatePostMutation,
     useRefreshTokenMutation,
-    useGetPostsQuery,
-    useGetPostByIdQuery,
     useSearchUsersQuery,
-    useSendFriendRequestMutation,
-    useGetPeddingFriendRequestsQuery,
-    useAcceptFriendRequestMutation,
-    useCancelFriendRequestMutation,
-    useUnfriendMutation,
 } = rootApi;

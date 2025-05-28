@@ -11,7 +11,7 @@ import {
     useAcceptFriendRequestMutation,
     useCancelFriendRequestMutation,
     useSendFriendRequestMutation,
-} from '@services/rootApi';
+} from '@services/friendAPI';
 import { getAvatar, stringAvatar } from '@utils/stringAvatar';
 import React from 'react';
 import { Link } from 'react-router-dom';

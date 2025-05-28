@@ -5,7 +5,7 @@ import {
     useAcceptFriendRequestMutation,
     useCancelFriendRequestMutation,
     useGetPeddingFriendRequestsQuery,
-} from '@services/rootApi';
+} from '@services/friendAPI';
 import { getAvatar, stringAvatar } from '@utils/stringAvatar';
 
 import React, { useEffect } from 'react';
@@ -56,7 +56,7 @@ const FriendRequest = () => {
     useEffect(() => {
         socket.on('friendRequestReceived', (data) => {
             if (data.from) {
-                refetch(); // Refetch the friend requests when a new request is received
+                refetch(); // thủ công xoá dữ liệu đã caching
             }
         });
         return () => {
