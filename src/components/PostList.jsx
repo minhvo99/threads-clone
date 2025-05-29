@@ -1,11 +1,19 @@
 import Post from './Post';
 import Loading from './Loading';
-import { useLazyLoadPosts } from '@hooks/index';
-import { useLikePostMutation } from '@services/postAPI';
+import { useLazyLoadPosts, useNotification, useUserInfor } from '@hooks/index';
+import {
+    useCreateCommentMutation,
+    useLikePostMutation,
+    useUnLikePostMutation,
+} from '@services/postAPI';
 
 const PostList = () => {
-    const { hasMore, isFetching, posts } = useLazyLoadPosts();
+    const { isFetching: isLazyLoad, posts } = useLazyLoadPosts();
     const [likePost] = useLikePostMutation();
+    const [unLikePost] = useUnLikePostMutation();
+    const { _id } = useUserInfor();
+    const [createComment] = useCreateCommentMutation();
+    const { createNotification } = useNotification();
 
     return (
         <div className='flex flex-col gap-4'>
@@ -19,15 +27,33 @@ const PostList = () => {
                     comments={post?.comments}
                     likes={post?.likes}
                     id={post._id}
-                    onLike={() => {
-                        likePost(post._id);
+                    onLike={async () => {
+                        const res = await likePost(post._id).unwrap();
+
+                        createNotification({
+                            receiverUserId: post?.author?._id,
+                            postId: post._id,
+                            notificationType: 'like',
+                            notificationTypeId: res._id,
+                        });
+                    }}
+                    onUnLike={() => {
+                        unLikePost(post._id);
+                    }}
+                    isLiked={post.likes.some((like) => like?.author?._id === _id)}
+                    onComment={async ({ postId, comment }) => {
+                        const res = await createComment({ postId, comment }).unwrap();
+
+                        createNotification({
+                            receiverUserId: post?.author?._id,
+                            postId: post._id,
+                            notificationType: 'comment',
+                            notificationTypeId: res._id,
+                        });
                     }}
                 />
             ))}
-            {isFetching && <Loading />}
-            {!hasMore && (
-                <p className='text-center text-gray-500'>Your are catching all !!!</p>
-            )}
+            {isLazyLoad && <Loading />}
         </div>
     );
 };

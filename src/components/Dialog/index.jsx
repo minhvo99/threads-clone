@@ -10,6 +10,8 @@ const DynamicContent = ({ contentType, additionalData }) => {
     switch (contentType) {
         case 'NEW_POST_DIALOG':
             return <NewPostDialog userInfo={additionalData} />;
+        case 'COMMENT_POST_DIALOG':
+            return <p>Comment Post Dialog - Not implemented yet</p>;
         default:
             return <p></p>;
     }
