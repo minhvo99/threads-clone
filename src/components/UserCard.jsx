@@ -1,11 +1,5 @@
 import { socket } from '@context/SocketProvider';
-import {
-    Cancel,
-    Check,
-    MessageOutlined,
-    PersonAdd,
-    PersonAddAlt,
-} from '@mui/icons-material';
+import { Cancel, Check, MessageOutlined, PersonAdd } from '@mui/icons-material';
 import { Avatar, CircularProgress } from '@mui/material';
 import {
     useAcceptFriendRequestMutation,
@@ -16,6 +10,7 @@ import { getAvatar, stringAvatar } from '@utils/stringAvatar';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Button from './Button';
+import { Events } from '@libs/constants';
 
 const UserCard = ({ userInfo, isFriend, requestSent, requestReceived, id }) => {
     const [sendFriendRequest, { isLoading }] = useSendFriendRequestMutation();
@@ -82,7 +77,7 @@ const UserCard = ({ userInfo, isFriend, requestSent, requestReceived, id }) => {
                 className='flex items-center justify-between'
                 onClick={async () => {
                     await sendFriendRequest(userInfo._id).unwrap();
-                    socket.emit('friendRequestSent', {
+                    socket.emit(Events.FRIEND_REQUEST_SENT, {
                         receiverId: userInfo._id,
                     });
                 }}

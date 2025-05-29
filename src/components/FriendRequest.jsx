@@ -10,6 +10,7 @@ import { getAvatar, stringAvatar } from '@utils/stringAvatar';
 
 import React, { useEffect } from 'react';
 import Button from './Button';
+import { Events } from '@libs/constants';
 const FriendRequestItems = ({ userInfor, id }) => {
     const [acceptFriendRequest, { isLoading: acceptLoading }] =
         useAcceptFriendRequestMutation();
@@ -54,13 +55,13 @@ const FriendRequest = () => {
     const { data = [], refetch } = useGetPeddingFriendRequestsQuery();
 
     useEffect(() => {
-        socket.on('friendRequestReceived', (data) => {
+        socket.on(Events.FRIEND_REQUEST_RECEIVED, (data) => {
             if (data.from) {
                 refetch(); // thủ công xoá dữ liệu đã caching
             }
         });
         return () => {
-            socket.off('friendRequestSent'); // Clean up the event listener
+            socket.off(Events.FRIEND_REQUEST_RECEIVED); // Clean up the event listener
         };
     }, [refetch]);
     return (

@@ -25,6 +25,7 @@ import { useDispatch } from 'react-redux';
 import { toggleDrawer } from '@redux/slices/settingSlices';
 import { getAvatar, stringAvatar } from '@utils/stringAvatar';
 import { useDetectLayout, useLogOut, useUserInfor } from '@hooks/index';
+import NotificationsPanel from './NotificationsPanel';
 
 const Header = () => {
     // const [anchorEl, setAnchorEl] = useState(null);
@@ -202,11 +203,7 @@ const Header = () => {
                                 <Search />
                             </IconButton>
                         )}
-                        <IconButton size='medium'>
-                            <Badge badgeContent={4} color='error'>
-                                <Notifications />
-                            </Badge>
-                        </IconButton>
+                        <NotificationsPanel />
                         <IconButton size='medium' onClick={handleUserProfileClick}>
                             {/* <AccountCircle /> */}
                             <Avatar

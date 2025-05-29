@@ -16,7 +16,7 @@ import {
 import { logOutmiddleware } from './middlewares/middlewares';
 import settingReducer from './slices/settingSlices';
 import dialogReducer from './slices/dialogSlice';
-import { setupListeners } from '@reduxjs/toolkit/query';
+// import { setupListeners } from '@reduxjs/toolkit/query';
 
 const persistConfig = {
     key: 'root',

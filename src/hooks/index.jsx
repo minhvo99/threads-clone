@@ -9,6 +9,9 @@ import { useSelector } from 'react-redux';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useGetPostsQuery } from '@services/postAPI';
 import { throttle } from 'lodash';
+import { useCreateNotificationMutation } from '@services/notificationAPI';
+import { socket } from '@context/SocketProvider';
+import { Events } from '@libs/constants';
 export const useLogOut = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -33,40 +36,42 @@ export const useUserInfor = () => {
 export const useLazyLoadPosts = () => {
     const [offset, setOffset] = useState(0);
     const limit = 10;
-    const [posts, setPosts] = useState([]);
     const [hasMore, setHasMore] = useState(true);
 
-    const { data, isSuccess, isFetching } = useGetPostsQuery({ offset, limit });
+    const {
+        data = { ids: [], entities: [] },
+        isFetching,
+        refetch,
+    } = useGetPostsQuery({ offset, limit });
 
-    const previousDataRef = useRef();
+    const posts = data.ids.map((id) => data.entities[id]);
+
+    const prevPostCountRef = useRef(0);
+
     useEffect(() => {
-        if (isSuccess && data && previousDataRef.current !== data) {
-            if (!data.length) {
+        if (!isFetching && data && hasMore) {
+            const currentPostCount = data.ids.length;
+            const newFetchedCount = currentPostCount - prevPostCountRef.current;
+            if (newFetchedCount === 0) {
                 setHasMore(false);
-                return;
+            } else {
+                prevPostCountRef.current = currentPostCount;
             }
-            previousDataRef.current = data;
-            setPosts((prevPosts) => {
-                if (offset === 0) return data;
-                return [...prevPosts, ...data];
-            });
         }
-    }, [data, isSuccess, offset]);
+    }, [data, isFetching, hasMore]);
 
-    const loadMore = useCallback(() => {
+    const loadMore = useCallback(async () => {
         setOffset((offset) => offset + limit);
     }, []);
+
+    useEffect(() => {
+        refetch();
+    }, [offset, refetch]);
 
     useInfiniteScroll({
         hasMore,
         loadMore,
         isFetching,
-        offset,
-        resetFn: () => {
-            setOffset(0);
-            setHasMore(true);
-            previousDataRef.current = null;
-        },
     });
 
     return { isFetching, posts };
@@ -76,8 +81,6 @@ export const useInfiniteScroll = ({
     hasMore,
     loadMore,
     isFetching,
-    offset,
-    resetFn,
     threshold = 50,
     throttleMs = 500,
 }) => {
@@ -87,11 +90,6 @@ export const useInfiniteScroll = ({
             const scrollHeight = document.documentElement.scrollHeight; // a
             const clientHeight = document.documentElement.clientHeight; // c
 
-            if (scrollTop < 100 && offset > 0) {
-                resetFn();
-                return;
-            }
-
             if (!hasMore) {
                 return;
             }
@@ -100,7 +98,7 @@ export const useInfiniteScroll = ({
                 loadMore();
             }
         }, throttleMs);
-    }, [hasMore, isFetching, loadMore, threshold, throttleMs, offset, resetFn]);
+    }, [hasMore, isFetching, loadMore, threshold, throttleMs]);
 
     useEffect(() => {
         window.addEventListener('scroll', handleScroll);
@@ -110,4 +108,29 @@ export const useInfiniteScroll = ({
             handleScroll.cancel();
         };
     }, [handleScroll]);
+};
+
+export const useNotification = () => {
+    const [createNotificationMution] = useCreateNotificationMutation();
+    const { _id: currentUserId } = useUserInfor();
+
+    const createNotification = async (
+        receiverUserId,
+        postId,
+        notificationType,
+        notificationTypeId,
+    ) => {
+        if (currentUserId === receiverUserId) {
+            return;
+        }
+        const notification = await createNotificationMution({
+            userId: receiverUserId,
+            postId,
+            notificationType,
+            notificationTypeId,
+        }).unwrap();
+        socket.emit(Events.CREATE_NOTIFICATION, notification);
+    };
+
+    return { createNotification };
 };
