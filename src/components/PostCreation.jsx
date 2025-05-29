@@ -97,6 +97,14 @@ const PostCreation = () => {
                         }),
                     )
                 }
+                sx={{
+                    '& .MuiOutlinedInput-root': {
+                        borderRadius: '2.5rem',
+                        '& fieldset': {
+                            borderRadius: '2.5rem',
+                        },
+                    },
+                }}
             />
         </div>
     );

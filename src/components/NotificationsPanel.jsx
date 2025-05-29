@@ -1,7 +1,10 @@
-import { Circle, Notifications } from '@mui/icons-material';
-import { Avatar, Badge, IconButton, Menu, MenuItem } from '@mui/material';
-import { useGetNotificationsQuery } from '@services/notificationAPI';
-import { getAvatar, stringAvatar } from '@utils/stringAvatar';
+import { Notifications } from '@mui/icons-material';
+import { Badge, IconButton, Menu, MenuItem, Tab, Tabs } from '@mui/material';
+import {
+    useGetNotificationsQuery,
+    useSeenNotificationMutation,
+} from '@services/notificationAPI';
+import { generateNotificationMessage } from '@components/generateNotificationMesage';
 import React, { useState } from 'react';
 
 const NotificationsPanel = () => {
@@ -13,6 +16,13 @@ const NotificationsPanel = () => {
     const handleMenuClose = () => {
         setAnchorEl(null);
     };
+    const [seenNotification] = useSeenNotificationMutation();
+    // const a11yProps = (index) => {
+    //     return {
+    //         id: `simple-tab-${index}`,
+    //         'aria-controls': `simple-tabpanel-${index}`,
+    //     };
+    // };
     const renderNotifications = (
         <Menu
             open={!!anchorEl}
@@ -27,44 +37,30 @@ const NotificationsPanel = () => {
                 horizontal: 'right',
             }}
             classes={{ paper: '!min-w-80 !max-h-80 !overflow-y-auto' }}
+            sx={{
+                '& .MuiMenu-paper': {
+                    padding: 0,
+                },
+                '& .MuiMenu-list': {
+                    padding: 0,
+                },
+            }}
         >
             {(data?.notifications || []).map((notification) => (
-                <MenuItem key={notification._id} className='flex !justify-between'>
-                    {notification?.like && (
-                        <div className='flex items-center gap-2'>
-                            <Avatar
-                                {...stringAvatar(notification?.author?.fullName)}
-                                src={getAvatar(notification?.author)?.avatar}
-                            />
-                            <p>
-                                <span className='font-bold'>
-                                    {notification.author?.fullName || 'Unknow user'}
-                                </span>{' '}
-                                liked your thread
-                            </p>
-                        </div>
-                    )}
-                    {notification?.comment && (
-                        <div className='flex items-center gap-2'>
-                            <Avatar
-                                {...stringAvatar(notification?.author?.fullName)}
-                                src={getAvatar(notification?.author)?.avatar}
-                            />
-                            <p className='line-clamp-2 max-w-56 break-words whitespace-normal'>
-                                <span className='font-bold'>
-                                    {notification.author?.fullName || 'Unknow user'}
-                                </span>{' '}
-                                left a comment on your thread:{' '}
-                                <span>{notification?.comment?.comment}</span>
-                            </p>
-                        </div>
-                    )}
-                    {!notification?.seen && (
-                        <Circle fontSize='10px' className='text-dark-100' />
-                    )}
-                    {/* {notification.createdAt} */}
+                <MenuItem
+                    key={notification._id}
+                    className={`flex !justify-between ${notification.seen ? '' : '!bg-dark-300'} transition-colors duration-200 hover:!bg-gray-100`}
+                    onClick={() => seenNotification(notification._id)}
+                >
+                    {generateNotificationMessage(notification)}
                 </MenuItem>
             ))}
+            {/* <MenuItem>
+                <Tabs >
+                    <Tab label='All' {...a11yProps(0)} />
+                    <Tab label='Unread' {...a11yProps(1)} />
+                </Tabs>
+            </MenuItem> */}
         </Menu>
     );
 

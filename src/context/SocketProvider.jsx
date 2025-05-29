@@ -1,6 +1,9 @@
 /* eslint-disable react-refresh/only-export-components */
+import { Events } from '@libs/constants';
+import { openSnakeBar } from '@redux/slices/snakeBarSlices';
+import { rootApi } from '@services/rootApi';
 import React, { createContext, useContext, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { io } from 'socket.io-client';
 
 export const socket = io('https://api.holetex.com', {
@@ -17,6 +20,7 @@ export const useSocketContext = () => {
 
 const SocketProvider = ({ children }) => {
     const token = useSelector((state) => state.auth.accessToken); // Ensure auth state is accessed to trigger re-render on auth change
+    const dispatch = useDispatch();
     useEffect(() => {
         socket.connect();
         socket.auth = { token };
@@ -31,7 +35,31 @@ const SocketProvider = ({ children }) => {
             socket.off('disconnect');
             socket.disconnect();
         };
-    }, []);
+    }, [token]);
+
+    useEffect(() => {
+        if (!socket) return;
+        socket.on(Events.CREATE_NOTIFICATION_REQUEST, (data) => {
+            console.log('Notification request received', { data });
+            dispatch(
+                rootApi.util.updateQueryData('getNotifications', undefined, (draft) => {
+                    draft.notifications.unshift(data);
+                }),
+            );
+            const message = data?.like
+                ? `${data.author?.fullName} liked your thread`
+                : `${data.author?.fullName} left a comment on your thread: ${(data.comment?.comment || '').slice(0, 20)}...`;
+            dispatch(
+                openSnakeBar({
+                    type: 'info',
+                    message: message,
+                }),
+            );
+        });
+        return () => {
+            socket.off(Events.CREATE_NOTIFICATION_REQUEST);
+        };
+    }, [dispatch]);
     return <SocketContext.Provider value={{}}>{children}</SocketContext.Provider>;
 };
 
