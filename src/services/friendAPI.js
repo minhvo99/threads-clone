@@ -58,6 +58,9 @@ export const friendAPI = rootApi.injectEndpoints({
                     { type: 'PEDDING_FRIEND-REQUEST', id: agrs },
                 ],
             }),
+            getListFriends: builder.query({
+                query: () => '/friends',
+            }),
         };
     },
 });
@@ -68,4 +71,5 @@ export const {
     useAcceptFriendRequestMutation,
     useCancelFriendRequestMutation,
     useUnfriendMutation,
+    useGetListFriendsQuery,
 } = friendAPI;

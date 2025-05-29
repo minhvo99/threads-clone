@@ -110,27 +110,29 @@ export const useInfiniteScroll = ({
     }, [handleScroll]);
 };
 
-export const useNotification = () => {
-    const [createNotificationMution] = useCreateNotificationMutation();
+export const useNotifications = () => {
+    const [createNotificationMutation] = useCreateNotificationMutation();
     const { _id: currentUserId } = useUserInfor();
 
-    const createNotification = async (
+    async function createNotification({
         receiverUserId,
         postId,
         notificationType,
         notificationTypeId,
-    ) => {
-        if (currentUserId === receiverUserId) {
+    }) {
+        if (receiverUserId === currentUserId) {
             return;
         }
-        const notification = await createNotificationMution({
+
+        const notification = await createNotificationMutation({
             userId: receiverUserId,
             postId,
             notificationType,
             notificationTypeId,
         }).unwrap();
+
         socket.emit(Events.CREATE_NOTIFICATION, notification);
-    };
+    }
 
     return { createNotification };
 };

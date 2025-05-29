@@ -31,9 +31,22 @@ export const notificationAPI = rootApi.injectEndpoints({
                     };
                 },
             }),
+            seenNotification: builder.mutation({
+                query: (notificationId) => ({
+                    url: `/notifications/seen`,
+                    method: 'POST',
+                    body: { notificationId },
+                }),
+                // invalidatesTags: (result, error, agrs) => [
+                //     { type: 'GET_NOTIFICATIONS', id: agrs },
+                // ],
+            }),
         };
     },
 });
 
-export const { useGetNotificationsQuery, useCreateNotificationMutation } =
-    notificationAPI;
+export const {
+    useGetNotificationsQuery,
+    useCreateNotificationMutation,
+    useSeenNotificationMutation,
+} = notificationAPI;
