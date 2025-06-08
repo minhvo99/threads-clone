@@ -1,5 +1,7 @@
+/* eslint-disable no-unused-vars */
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import { rootApi } from './rootApi';
+import { method } from 'lodash';
 
 /**
  * Entity adapter giup quan ly du lieu o ngay trong redux va
@@ -178,10 +180,29 @@ export const postAPI = rootApi.injectEndpoints({
                         method: 'DELETE',
                     };
                 },
-                // eslint-disable-next-line no-unused-vars
-                invalidatesTags: (result, error, args) => {
-                    return [{ type: 'POSTS' }];
+                onQueryStarted: async (args, { dispatch, queryFulfilled, getState }) => {
+                    const store = getState();
+                    const pathResult = dispatch(
+                        rootApi.util.updateQueryData('getPosts', 'allPosts', (draft) => {
+                            const currentPost = draft.entities[args];
+                            if (currentPost) {
+                                currentPost.likes = currentPost.likes.filter(
+                                    (like) =>
+                                        like.author._id !== store.auth.userInfor._id,
+                                );
+                            }
+                        }),
+                    );
+                    try {
+                        await queryFulfilled; // wait for the query to be fulfilled
+                    } catch (error) {
+                        console.error('Failed to unlike post:', error);
+                        pathResult.undo(); // undo the optimistic update if the query fails
+                    }
                 },
+                // invalidatesTags: (result, error, args) => {
+                //     return [{ type: 'POSTS' }];
+                // },
             }),
             createComment: builder.mutation({
                 query: ({ postId, comment }) => {
@@ -242,6 +263,37 @@ export const postAPI = rootApi.injectEndpoints({
                     }
                 },
             }),
+            deleteComment: builder.mutation({
+                query: ({ postId, id }) => {
+                    return {
+                        url: `/posts/${postId}/comments/${id}`,
+                        method: 'DELETE',
+                        params: { postId, id },
+                    };
+                },
+            }),
+            deletePost: builder.mutation({
+                query: (id) => {
+                    return {
+                        url: `/posts/${id}`,
+                        method: 'DELETE',
+                        params: { id },
+                    };
+                },
+                onQueryStarted: async (args, { dispatch, queryFulfilled, getState }) => {
+                    const patchResult = dispatch(
+                        rootApi.util.updateQueryData('getPosts', 'allPosts', (draft) => {
+                            postsAdapter.removeOne(draft, args); //removeOne: xoá 1 dữ liệu trong entity adapter
+                        }),
+                    );
+                    try {
+                        await queryFulfilled;
+                    } catch (error) {
+                        console.error('Failed to delete post:', error);
+                        patchResult.undo();
+                    }
+                },
+            }),
         };
     },
 });
@@ -253,4 +305,6 @@ export const {
     useLikePostMutation,
     useUnLikePostMutation,
     useCreateCommentMutation,
+    useDeletePostMutation,
+    useDeleteCommentMutation,
 } = postAPI;

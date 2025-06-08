@@ -141,7 +141,9 @@ const Header = () => {
                 horizontal: 'right',
             }}
         >
-            <MenuItem>Profile</MenuItem>
+            <MenuItem>
+                <Link to='/my-profile'>Profile</Link>
+            </MenuItem>
             <MenuItem onClick={handleLogOut}>
                 <p className='text-[red]'>Log Out</p>
             </MenuItem>

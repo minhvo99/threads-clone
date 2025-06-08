@@ -1,15 +1,6 @@
 import { Notifications } from '@mui/icons-material';
+import { Badge, IconButton, Menu, Tab, Tabs, Box } from '@mui/material';
 import {
-    Badge,
-    IconButton,
-    Menu,
-    Tab,
-    Tabs,
-    Typography,
-    Box,
-} from '@mui/material';
-import {
-    useGetNotificationsQuery,
     useSeenNotificationMutation,
     selectNotifications,
     selectNotificationsTotal,
@@ -19,15 +10,14 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 
 const NotificationsPanel = () => {
-    const [offset, setOffset] = useState(0);
-    const limit = 10;
+    // const [offset, setOffset] = useState(0);
+    // const limit = 10;
     const [anchorEl, setAnchorEl] = useState(null);
     const [value, setValue] = useState(0);
 
-    // Sử dụng selectors để lấy data từ cache
     const notifications = useSelector(selectNotifications);
     const total = useSelector(selectNotificationsTotal);
-    const { isFetching } = useGetNotificationsQuery({ limit, offset });
+    // const { isFetching } = useGetNotificationsQuery({ limit, offset });
     const [seenNotification] = useSeenNotificationMutation();
 
     const notificationCount = notifications.filter((noti) => !noti.seen);
@@ -108,17 +98,12 @@ const NotificationsPanel = () => {
                         />
                     ))}
                     {notifications.length < total && (
-                        <p
-                            className='mb-2 cursor-pointer text-center text-sm text-gray-500 hover:bg-gray-100 py-2'
-                            onClick={() => {
-                                setOffset((prevOffset) => prevOffset + limit);
-                            }}
-                        >
+                        <p className='mb-2 cursor-pointer py-2 text-center text-sm text-gray-500 hover:bg-gray-100'>
                             See more...
                         </p>
                     )}
                     {notifications.length === 0 && (
-                        <p className='text-center text-gray-500 py-4'>No notifications</p>
+                        <p className='py-4 text-center text-gray-500'>No notifications</p>
                     )}
                 </div>
             </CustomTabPanel>
@@ -135,7 +120,9 @@ const NotificationsPanel = () => {
                         />
                     ))}
                     {unreadNotifications.length === 0 && (
-                        <p className='text-center text-gray-500 py-4'>No unread notifications</p>
+                        <p className='py-4 text-center text-gray-500'>
+                            No unread notifications
+                        </p>
                     )}
                 </div>
             </CustomTabPanel>

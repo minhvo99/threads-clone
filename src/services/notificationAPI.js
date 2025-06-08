@@ -1,4 +1,5 @@
 import { createEntityAdapter } from '@reduxjs/toolkit';
+import { createSelector } from '@reduxjs/toolkit';
 import { rootApi } from './rootApi';
 
 // Tạo entity adapter cho notifications
@@ -8,7 +9,7 @@ const notificationsAdapter = createEntityAdapter({
 });
 
 const initialState = notificationsAdapter.getInitialState({
-    total: 0
+    total: 0,
 });
 
 export const notificationAPI = rootApi.injectEndpoints({
@@ -23,15 +24,21 @@ export const notificationAPI = rootApi.injectEndpoints({
                 },
                 transformResponse: (response) => {
                     return {
-                        ...notificationsAdapter.upsertMany(initialState, response.notifications || []),
-                        total: response.total || 0
+                        ...notificationsAdapter.upsertMany(
+                            initialState,
+                            response.notifications || [],
+                        ),
+                        total: response.total || 0,
                     };
                 },
                 serializeQueryArgs: () => 'allNotifications',
                 merge: (currentCache, newItems) => {
                     return {
-                        ...notificationsAdapter.upsertMany(currentCache, Object.values(newItems.entities)),
-                        total: newItems.total
+                        ...notificationsAdapter.upsertMany(
+                            currentCache,
+                            Object.values(newItems.entities),
+                        ),
+                        total: newItems.total,
                     };
                 },
                 providesTags: [{ type: 'GET_NOTIFICATIONS' }],
@@ -59,12 +66,16 @@ export const notificationAPI = rootApi.injectEndpoints({
                 onQueryStarted: async (args, { dispatch, queryFulfilled }) => {
                     // Optimistic update
                     const patchResult = dispatch(
-                        rootApi.util.updateQueryData('getNotifications', 'allNotifications', (draft) => {
-                            const notification = draft.entities[args];
-                            if (notification) {
-                                notification.seen = true;
-                            }
-                        }),
+                        rootApi.util.updateQueryData(
+                            'getNotifications',
+                            'allNotifications',
+                            (draft) => {
+                                const notification = draft.entities[args];
+                                if (notification) {
+                                    notification.seen = true;
+                                }
+                            },
+                        ),
                     );
 
                     try {
@@ -85,13 +96,22 @@ export const {
     useSeenNotificationMutation,
 } = notificationAPI;
 
-// Export selectors
-export const selectNotificationsResult = notificationAPI.endpoints.getNotifications.select('allNotifications');
-export const selectNotifications = (state) => {
-    const result = selectNotificationsResult(state);
-    return result?.data ? notificationsAdapter.getSelectors().selectAll(result.data) : [];
-};
-export const selectNotificationsTotal = (state) => {
-    const result = selectNotificationsResult(state);
-    return result?.data?.total || 0;
-};
+// Export selectors với memoization
+export const selectNotificationsResult =
+    notificationAPI.endpoints.getNotifications.select('allNotifications');
+
+export const selectNotifications = createSelector(
+    [selectNotificationsResult],
+    (result) => {
+        return result?.data
+            ? notificationsAdapter.getSelectors().selectAll(result.data)
+            : [];
+    },
+);
+
+export const selectNotificationsTotal = createSelector(
+    [selectNotificationsResult],
+    (result) => {
+        return result?.data?.total || 0;
+    },
+);

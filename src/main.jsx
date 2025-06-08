@@ -17,8 +17,15 @@ import { PersistGate } from 'redux-persist/integration/react';
 import Loading from '@components/Loading';
 import { persistor } from '@redux/store';
 import Dialog from '@components/Dialog';
-import SearchPage from '@pages/SearchPage';
+
 const Home = lazy(() => import('@pages/Home'));
+const SearchPage = lazy(() => import('@pages/SearchPage'));
+const FriendPage = lazy(() => import('@pages/FriendPage'));
+const GroupPage = lazy(() => import('@pages/GroupPage'));
+const AccountSettingPage = lazy(() => import('@pages/AccountSettingPage'));
+const LangugeSettingPage = lazy(() => import('@pages/LangugeSettingPage'));
+const MessengerPage = lazy(() => import('@pages/MessengerPage'));
+const UserProfilePage = lazy(() => import('@pages/UserProfilePage'));
 
 const router = createBrowserRouter([
     {
@@ -34,6 +41,30 @@ const router = createBrowserRouter([
                     {
                         path: '/search/users',
                         element: <SearchPage />,
+                    },
+                    {
+                        path: '/messengers',
+                        element: <MessengerPage />,
+                    },
+                    {
+                        path: '/friends',
+                        element: <FriendPage />,
+                    },
+                    {
+                        path: '/groups',
+                        element: <GroupPage />,
+                    },
+                    {
+                        path: '/setting/account',
+                        element: <AccountSettingPage />,
+                    },
+                    {
+                        path: '/setting/languages',
+                        element: <LangugeSettingPage />,
+                    },
+                    {
+                        path: '/my-profile',
+                        element: <UserProfilePage />,
                     },
                 ],
             },

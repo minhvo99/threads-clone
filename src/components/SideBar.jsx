@@ -22,7 +22,7 @@ const SideBarContent = () => {
                 <Link to='/' className='flex items-center gap-1'>
                     <HomeOutlined fontSize='small' /> New Feeds
                 </Link>
-                <Link to='/messages' className='flex items-center gap-1'>
+                <Link to='/messengers' className='flex items-center gap-1'>
                     <Message fontSize='small' />
                     Messenger
                 </Link>

@@ -27,6 +27,7 @@ const PostList = () => {
                     comments={post?.comments}
                     likes={post?.likes}
                     id={post._id}
+                    author={_id}
                     onLike={async () => {
                         const res = await likePost(post._id).unwrap();
                         createNotification({
