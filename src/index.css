@@ -1,0 +1,20 @@
+@import 'tailwindcss';
+body {
+    font-family: 'Public Sans Variable', sans-serif;
+}
+
+@layer components {
+    .container {
+        @apply mx-auto flex max-w-6xl gap-4 p-6 sm:gap-8;
+    }
+    .card {
+        @apply rounded bg-white p-4 shadow;
+    }
+}
+
+@theme {
+    --color-dark-100: #4b465c;
+    --color-dark-200: #f8f7fa;
+    --color-dark-300: #dbdade;
+    --color-dark-400: #909090;
+}
