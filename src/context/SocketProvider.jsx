@@ -22,6 +22,7 @@ const SocketProvider = ({ children }) => {
     const token = useSelector((state) => state.auth.accessToken); // Ensure auth state is accessed to trigger re-render on auth change
     const dispatch = useDispatch();
     useEffect(() => {
+        if (!token) return;
         socket.connect();
         socket.auth = { token };
         socket.on('connect', () => {
