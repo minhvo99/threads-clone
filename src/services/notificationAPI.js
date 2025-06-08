@@ -1,21 +1,40 @@
+import { createEntityAdapter } from '@reduxjs/toolkit';
 import { rootApi } from './rootApi';
+
+// Tạo entity adapter cho notifications
+const notificationsAdapter = createEntityAdapter({
+    selectId: (notification) => notification._id,
+    sortComparer: (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+});
+
+const initialState = notificationsAdapter.getInitialState({
+    total: 0
+});
 
 export const notificationAPI = rootApi.injectEndpoints({
     endpoints: (builder) => {
         return {
             getNotifications: builder.query({
-                query: () => '/notifications',
-                // keepUnusedDataFor: 30,
-                providesTags: (result) =>
-                    result
-                        ? [
-                              ...result.notifications.map(({ _id }) => ({
-                                  type: 'GET_NOTIFICATIONS',
-                                  id: _id,
-                              })),
-                              { type: 'GET_NOTIFICATIONS', id: 'LIST' },
-                          ]
-                        : [{ type: 'GET_NOTIFICATIONS', id: 'LIST' }],
+                query: ({ limit, offset }) => {
+                    return {
+                        url: '/notifications',
+                        params: { limit, offset },
+                    };
+                },
+                transformResponse: (response) => {
+                    return {
+                        ...notificationsAdapter.upsertMany(initialState, response.notifications || []),
+                        total: response.total || 0
+                    };
+                },
+                serializeQueryArgs: () => 'allNotifications',
+                merge: (currentCache, newItems) => {
+                    return {
+                        ...notificationsAdapter.upsertMany(currentCache, Object.values(newItems.entities)),
+                        total: newItems.total
+                    };
+                },
+                providesTags: [{ type: 'GET_NOTIFICATIONS' }],
             }),
             createNotification: builder.mutation({
                 query: ({ userId, postId, notificationType, notificationTypeId }) => {
@@ -34,12 +53,27 @@ export const notificationAPI = rootApi.injectEndpoints({
             seenNotification: builder.mutation({
                 query: (notificationId) => ({
                     url: `/notifications/seen`,
-                    method: 'POST',
+                    method: 'PATCH',
                     body: { notificationId },
                 }),
-                // invalidatesTags: (result, error, agrs) => [
-                //     { type: 'GET_NOTIFICATIONS', id: agrs },
-                // ],
+                onQueryStarted: async (args, { dispatch, queryFulfilled }) => {
+                    // Optimistic update
+                    const patchResult = dispatch(
+                        rootApi.util.updateQueryData('getNotifications', 'allNotifications', (draft) => {
+                            const notification = draft.entities[args];
+                            if (notification) {
+                                notification.seen = true;
+                            }
+                        }),
+                    );
+
+                    try {
+                        await queryFulfilled;
+                    } catch (error) {
+                        console.error('Failed to mark notification as seen:', error);
+                        patchResult.undo();
+                    }
+                },
             }),
         };
     },
@@ -50,3 +84,14 @@ export const {
     useCreateNotificationMutation,
     useSeenNotificationMutation,
 } = notificationAPI;
+
+// Export selectors
+export const selectNotificationsResult = notificationAPI.endpoints.getNotifications.select('allNotifications');
+export const selectNotifications = (state) => {
+    const result = selectNotificationsResult(state);
+    return result?.data ? notificationsAdapter.getSelectors().selectAll(result.data) : [];
+};
+export const selectNotificationsTotal = (state) => {
+    const result = selectNotificationsResult(state);
+    return result?.data?.total || 0;
+};
