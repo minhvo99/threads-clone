@@ -40,12 +40,23 @@ const SocketProvider = ({ children }) => {
     useEffect(() => {
         if (!socket) return;
         socket.on(Events.CREATE_NOTIFICATION_REQUEST, (data) => {
-            console.log('Notification request received', { data });
+            // Optimistic update - thêm notification mới vào đầu list
             dispatch(
-                rootApi.util.updateQueryData('getNotifications', undefined, (draft) => {
-                    draft.notifications.unshift(data);
-                }),
+                rootApi.util.updateQueryData(
+                    'getNotifications',
+                    'allNotifications',
+                    (draft) => {
+                        const exists = draft.entities[data._id];
+                        if (!exists) {
+                            // Thêm notification mới
+                            draft.entities[data._id] = data;
+                            draft.ids.unshift(data._id);
+                            draft.total = (draft.total || 0) + 1;
+                        }
+                    },
+                ),
             );
+
             const message = data?.like
                 ? `${data.author?.fullName} liked your thread`
                 : `${data.author?.fullName} left a comment on your thread: ${(data.comment?.comment || '').slice(0, 20)}...`;

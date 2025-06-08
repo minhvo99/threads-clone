@@ -1,28 +1,69 @@
 import { Notifications } from '@mui/icons-material';
-import { Badge, IconButton, Menu, MenuItem, Tab, Tabs } from '@mui/material';
+import {
+    Badge,
+    IconButton,
+    Menu,
+    Tab,
+    Tabs,
+    Typography,
+    Box,
+} from '@mui/material';
 import {
     useGetNotificationsQuery,
     useSeenNotificationMutation,
+    selectNotifications,
+    selectNotificationsTotal,
 } from '@services/notificationAPI';
-import { generateNotificationMessage } from '@components/generateNotificationMesage';
+import { GenerateNotificationMessage } from '@components/GenerateNotificationMesage';
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 
 const NotificationsPanel = () => {
+    const [offset, setOffset] = useState(0);
+    const limit = 10;
     const [anchorEl, setAnchorEl] = useState(null);
-    const { data = {} } = useGetNotificationsQuery();
-    const notificationCount = (data?.notifications || []).filter(
-        (noti) => noti?.seen === false,
-    );
+    const [value, setValue] = useState(0);
+
+    // Sử dụng selectors để lấy data từ cache
+    const notifications = useSelector(selectNotifications);
+    const total = useSelector(selectNotificationsTotal);
+    const { isFetching } = useGetNotificationsQuery({ limit, offset });
+    const [seenNotification] = useSeenNotificationMutation();
+
+    const notificationCount = notifications.filter((noti) => !noti.seen);
+    const unreadNotifications = notifications.filter((noti) => !noti.seen);
+
     const handleMenuClose = () => {
         setAnchorEl(null);
     };
-    const [seenNotification] = useSeenNotificationMutation();
-    // const a11yProps = (index) => {
-    //     return {
-    //         id: `simple-tab-${index}`,
-    //         'aria-controls': `simple-tabpanel-${index}`,
-    //     };
-    // };
+
+    const handleTabChange = (event, newValue) => {
+        setValue(newValue);
+    };
+
+    function CustomTabPanel(props) {
+        const { children, value, index, ...other } = props;
+        return (
+            <div
+                role='tabpanel'
+                hidden={value !== index}
+                id={`simple-tabpanel-${index}`}
+                aria-labelledby={`simple-tab-${index}`}
+                {...other}
+            >
+                {value === index && <Box sx={{ p: 1 }}>{children}</Box>}
+            </div>
+        );
+    }
+
+    const handleSeenNotification = async (notificationId) => {
+        try {
+            await seenNotification(notificationId).unwrap();
+        } catch (error) {
+            console.error('Failed to mark notification as seen:', error);
+        }
+    };
+
     const renderNotifications = (
         <Menu
             open={!!anchorEl}
@@ -46,27 +87,65 @@ const NotificationsPanel = () => {
                 },
             }}
         >
-            {(data?.notifications || []).map((notification) => (
-                <MenuItem
-                    key={notification._id}
-                    className={`flex !justify-between ${notification.seen ? '' : '!bg-dark-300'} transition-colors duration-200 hover:!bg-gray-100`}
-                    onClick={() => seenNotification(notification._id)}
-                >
-                    {generateNotificationMessage(notification)}
-                </MenuItem>
-            ))}
-            {/* <MenuItem>
-                <Tabs >
-                    <Tab label='All' {...a11yProps(0)} />
-                    <Tab label='Unread' {...a11yProps(1)} />
+            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <Tabs value={value} onChange={handleTabChange} variant='fullWidth'>
+                    <Tab label='All' />
+                    <Tab label='Unread' />
                 </Tabs>
-            </MenuItem> */}
+            </Box>
+
+            <CustomTabPanel value={value} index={0}>
+                <div className='max-h-60 overflow-y-auto'>
+                    {notifications.map((notification) => (
+                        <GenerateNotificationMessage
+                            key={notification._id}
+                            notification={notification}
+                            onSeenNotification={() => {
+                                if (!notification.seen) {
+                                    handleSeenNotification(notification._id);
+                                }
+                            }}
+                        />
+                    ))}
+                    {notifications.length < total && (
+                        <p
+                            className='mb-2 cursor-pointer text-center text-sm text-gray-500 hover:bg-gray-100 py-2'
+                            onClick={() => {
+                                setOffset((prevOffset) => prevOffset + limit);
+                            }}
+                        >
+                            See more...
+                        </p>
+                    )}
+                    {notifications.length === 0 && (
+                        <p className='text-center text-gray-500 py-4'>No notifications</p>
+                    )}
+                </div>
+            </CustomTabPanel>
+
+            <CustomTabPanel value={value} index={1}>
+                <div className='max-h-60 overflow-y-auto'>
+                    {unreadNotifications.map((notification) => (
+                        <GenerateNotificationMessage
+                            key={notification._id}
+                            notification={notification}
+                            onSeenNotification={() => {
+                                handleSeenNotification(notification._id);
+                            }}
+                        />
+                    ))}
+                    {unreadNotifications.length === 0 && (
+                        <p className='text-center text-gray-500 py-4'>No unread notifications</p>
+                    )}
+                </div>
+            </CustomTabPanel>
         </Menu>
     );
 
     const handleNotificationClick = (event) => {
         setAnchorEl(event.target);
     };
+
     return (
         <>
             <IconButton size='medium' onClick={handleNotificationClick}>
