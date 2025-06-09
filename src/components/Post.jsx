@@ -12,7 +12,7 @@ import { faRepeat } from '@fortawesome/free-solid-svg-icons';
 import { useUserInfor } from '@hooks/index';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import { useDeletePostMutation } from '@services/postAPI';
+import { useDeleteCommentMutation, useDeletePostMutation } from '@services/postAPI';
 import { useDispatch } from 'react-redux';
 import { openSnakeBar } from '@redux/slices/snakeBarSlices';
 
@@ -36,6 +36,7 @@ const Post = ({
     const [anchorEl, setAnchorEl] = useState(null);
     const [onDeletePost, { isLoading }] = useDeletePostMutation();
     const dispatch = useDispatch();
+    const [onDeleteComment] = useDeleteCommentMutation();
     const handleMenuClose = () => {
         setAnchorEl(null);
     };
@@ -187,7 +188,16 @@ const Post = ({
                                             <p>{comment.comment}</p>
                                         </div>
                                     </div>
-                                    <MoreHorizIcon />
+                                    {comment.author._id === author && (
+                                        <MoreHorizIcon
+                                            onClick={() => {
+                                                onDeleteComment({
+                                                    postId: id,
+                                                    id: comment._id,
+                                                });
+                                            }}
+                                        />
+                                    )}
                                 </div>
                             ))}
                         </div>
