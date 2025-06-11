@@ -75,7 +75,6 @@ export const ImageUploader = ({ setImage, imagePreview, setImagePreview }) => {
 
 const PostCreation = () => {
     const userInfo = useUserInfor();
-
     const dispatch = useDispatch();
 
     return (
@@ -87,7 +86,8 @@ const PostCreation = () => {
             <TextField
                 className='flex-1 !border-none'
                 size='small'
-                placeholder='What is on your mine?'
+                placeholder='What is on your mind?'
+                autoFocus={false}
                 onClick={() =>
                     dispatch(
                         openDialog({

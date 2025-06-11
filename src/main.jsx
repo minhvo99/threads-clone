@@ -26,6 +26,7 @@ const AccountSettingPage = lazy(() => import('@pages/AccountSettingPage'));
 const LangugeSettingPage = lazy(() => import('@pages/LangugeSettingPage'));
 const MessengerPage = lazy(() => import('@pages/MessengerPage'));
 const UserProfilePage = lazy(() => import('@pages/UserProfilePage'));
+const Post = lazy(() => import('@components/Post'));
 
 const router = createBrowserRouter([
     {
@@ -65,6 +66,10 @@ const router = createBrowserRouter([
                     {
                         path: '/my-profile',
                         element: <UserProfilePage />,
+                    },
+                    {
+                        path: 'post/:id',
+                        element: <Post />,
                     },
                 ],
             },

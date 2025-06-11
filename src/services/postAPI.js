@@ -268,7 +268,6 @@ export const postAPI = rootApi.injectEndpoints({
                     return {
                         url: `/posts/${postId}/comments/${id}`,
                         method: 'DELETE',
-                        params: { postId, id },
                     };
                 },
             }),

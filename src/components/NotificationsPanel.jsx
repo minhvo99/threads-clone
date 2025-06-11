@@ -4,20 +4,21 @@ import {
     useSeenNotificationMutation,
     selectNotifications,
     selectNotificationsTotal,
+    useGetNotificationsQuery,
 } from '@services/notificationAPI';
 import { GenerateNotificationMessage } from '@components/GenerateNotificationMesage';
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 
 const NotificationsPanel = () => {
-    // const [offset, setOffset] = useState(0);
-    // const limit = 10;
+    const offset = 0;
+    const limit = 10;
     const [anchorEl, setAnchorEl] = useState(null);
     const [value, setValue] = useState(0);
 
     const notifications = useSelector(selectNotifications);
     const total = useSelector(selectNotificationsTotal);
-    // const { isFetching } = useGetNotificationsQuery({ limit, offset });
+    useGetNotificationsQuery({ limit, offset });
     const [seenNotification] = useSeenNotificationMutation();
 
     const notificationCount = notifications.filter((noti) => !noti.seen);
