@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { Close } from '@mui/icons-material';
 import NewPostDialog from './NewPostDialog';
+import PostsDialog from './PostsDialog';
 
 const DynamicContent = ({ contentType, additionalData }) => {
     switch (contentType) {
@@ -12,6 +13,9 @@ const DynamicContent = ({ contentType, additionalData }) => {
             return <NewPostDialog userInfo={additionalData} />;
         case 'COMMENT_POST_DIALOG':
             return <p>Comment Post Dialog - Not implemented yet</p>;
+        case 'DETAIL_POST_DIALOG':
+            return <PostsDialog content={additionalData} />;
+
         default:
             return <p></p>;
     }

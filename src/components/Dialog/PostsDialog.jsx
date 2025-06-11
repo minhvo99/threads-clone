@@ -1,35 +1,28 @@
-import { Favorite, Send } from '@mui/icons-material';
-import { Avatar, IconButton, Menu, MenuItem, TextField } from '@mui/material';
+import { faComment, faPaperPlane } from '@fortawesome/free-regular-svg-icons';
+import { faRepeat } from '@fortawesome/free-solid-svg-icons';
+import { useUserInfor } from '@hooks/index';
+import { openSnakeBar } from '@redux/slices/snakeBarSlices';
+import { useDeleteCommentMutation, useDeletePostMutation } from '@services/postAPI';
 import { getAvatar, stringAvatar } from '@utils/stringAvatar';
 import dayjs from 'dayjs';
 import React, { useState } from 'react';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faComment, faPaperPlane } from '@fortawesome/free-regular-svg-icons';
-import { faRepeat } from '@fortawesome/free-solid-svg-icons';
-
-import { useUserInfor } from '@hooks/index';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import { useDeleteCommentMutation, useDeletePostMutation } from '@services/postAPI';
 import { useDispatch } from 'react-redux';
-import { openSnakeBar } from '@redux/slices/snakeBarSlices';
-import MenuPopUp from './MenuPopUp';
 
-const Post = ({
-    userInfo,
-    createAt,
-    content,
-    image,
-    comments,
-    likes,
-    onLike,
-    onUnLike,
-    isLiked,
-    id,
-    onComment,
-    author,
-}) => {
+const PostsDialog = (props) => {
+    const {
+        userInfo,
+        createAt,
+        content,
+        image,
+        comments,
+        likes,
+        onLike,
+        onUnLike,
+        isLiked,
+        id,
+        onComment,
+        author,
+    } = props.content;
     const authInfo = useUserInfor();
     const [isCommentBoxOpen, setIsCommentBoxOpen] = useState(false);
     const [comment, setComment] = useState('');
@@ -252,7 +245,6 @@ const Post = ({
                         );
                     }
                 }}
-                // children={<DeleteOutlineIcon />}
                 children='Delete Post'
                 anchorEl={anchorEl}
                 handleMenuClose={handleMenuClose}
@@ -261,4 +253,4 @@ const Post = ({
     );
 };
 
-export default Post;
+export default PostsDialog;
