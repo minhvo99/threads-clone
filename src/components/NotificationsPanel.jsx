@@ -4,8 +4,7 @@ import {
     useSeenNotificationMutation,
     useGetNotificationsQuery,
 } from '@services/notificationAPI';
-import { GenerateNotificationMessage } from '@components/GenerateNotificationMesage';
-import { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Loading from './Loading';
 import NotificationMessage from './NotificationMessage';
@@ -24,7 +23,7 @@ const NotificationsPanel = () => {
 
     const [allNotifications, setAllNotifications] = useState([]);
 
-    useMemo(() => {
+    useEffect(() => {
         if (notificationsList?.notifications) {
             if (offset === 0) {
                 setAllNotifications(notificationsList.notifications);
@@ -42,12 +41,13 @@ const NotificationsPanel = () => {
 
     const handleMenuClose = () => {
         setAnchorEl(null);
-        setOffset(0);
-        setAllNotifications([]);
     };
 
     const handleNotificationClick = (event) => {
         setAnchorEl(event.target);
+        if (allNotifications.length === 0) {
+            setOffset(0);
+        }
     };
 
     const handleSeenNotification = async (notificationId) => {
@@ -94,11 +94,6 @@ const NotificationsPanel = () => {
                     hasMore={hasMore}
                     loader={<Loading />}
                     scrollableTarget='notification-list'
-                    endMessage={
-                        <p className='py-4 text-center text-gray-400'>
-                            <b>Yay! You have seen it all</b>
-                        </p>
-                    }
                 >
                     {allNotifications.map((notification) => (
                         <NotificationMessage
