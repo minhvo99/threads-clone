@@ -109,6 +109,7 @@ export const postAPI = rootApi.injectEndpoints({
             }),
             getPostById: builder.query({
                 query: (id) => `/posts/${id}`,
+                providesTags: [{ type: 'GET_POST_BY_ID' }],
             }),
             likePost: builder.mutation({
                 query: (postId) => {
@@ -172,6 +173,7 @@ export const postAPI = rootApi.injectEndpoints({
                         console.error('Failed to like post:', error);
                     }
                 },
+                invalidatesTags: [{ type: 'GET_POST_BY_ID' }],
             }),
             unLikePost: builder.mutation({
                 query: (postId) => {
@@ -200,9 +202,7 @@ export const postAPI = rootApi.injectEndpoints({
                         pathResult.undo(); // undo the optimistic update if the query fails
                     }
                 },
-                // invalidatesTags: (result, error, args) => {
-                //     return [{ type: 'POSTS' }];
-                // },
+                invalidatesTags: [{ type: 'GET_POST_BY_ID' }],
             }),
             createComment: builder.mutation({
                 query: ({ postId, comment }) => {
@@ -262,6 +262,7 @@ export const postAPI = rootApi.injectEndpoints({
                         patchResult.undo();
                     }
                 },
+                invalidatesTags: [{ type: 'GET_POST_BY_ID' }],
             }),
             deleteComment: builder.mutation({
                 query: ({ postId, id }) => {
