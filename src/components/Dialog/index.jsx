@@ -14,8 +14,7 @@ const DynamicContent = ({ contentType, additionalData }) => {
         case 'COMMENT_POST_DIALOG':
             return <p>Comment Post Dialog - Not implemented yet</p>;
         case 'DETAIL_POST_DIALOG':
-            return <PostsDialog content={additionalData} />;
-
+            return <PostsDialog id={additionalData} />;
         default:
             return <p></p>;
     }
@@ -27,17 +26,28 @@ const Dialog = () => {
     return (
         <div>
             <MUIDialog
+                fullScreen={dialog.fullScreen}
                 open={dialog.open}
                 maxWidth={dialog.maxWidth}
                 fullWidth={dialog.fullWidth}
                 onClose={() => dispatch(closeDialog())}
             >
-                <DialogTitle className='flex items-center justify-between border-b border-b-slate-200'>
-                    {dialog.title}
-                    <IconButton onClick={() => dispatch(closeDialog())}>
-                        <Close />
-                    </IconButton>
-                </DialogTitle>
+                {dialog.hasTitle && (
+                    <DialogTitle className='flex items-center justify-between border-b border-b-slate-200'>
+                        {dialog.title}
+                        <IconButton onClick={() => dispatch(closeDialog())}>
+                            <Close />
+                        </IconButton>
+                    </DialogTitle>
+                )}
+                {!dialog.hasTitle && (
+                    <div className='flex justify-items-start'>
+                        <IconButton onClick={() => dispatch(closeDialog())}>
+                            <Close />
+                        </IconButton>
+                    </div>
+                )}
+
                 <DynamicContent
                     contentType={dialog.contentType}
                     additionalData={dialog.additionalData}

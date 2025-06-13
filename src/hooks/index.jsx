@@ -25,8 +25,9 @@ export const useLogOut = () => {
 export const useDetectLayout = () => {
     const theme = useTheme();
     const isMediumLayout = useMediaQuery(theme.breakpoints.down('md'));
+    const isSmallLayout = useMediaQuery(theme.breakpoints.down('sm'));
 
-    return { isMediumLayout };
+    return { isMediumLayout, isSmallLayout };
 };
 
 export const useUserInfor = () => {

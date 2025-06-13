@@ -27,6 +27,7 @@ const LangugeSettingPage = lazy(() => import('@pages/LangugeSettingPage'));
 const MessengerPage = lazy(() => import('@pages/MessengerPage'));
 const UserProfilePage = lazy(() => import('@pages/UserProfilePage'));
 const PostDetail = lazy(() => import('@components/PostDetail'));
+const Notification = lazy(() => import('@pages/Notification'));
 
 const router = createBrowserRouter([
     {
@@ -70,6 +71,10 @@ const router = createBrowserRouter([
                     {
                         path: 'post/:id',
                         element: <PostDetail />,
+                    },
+                    {
+                        path: '/notifications',
+                        element: <Notification />,
                     },
                 ],
             },
