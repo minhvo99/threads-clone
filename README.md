@@ -3,6 +3,8 @@
 ## Home page
 
 <img width="1512" alt="Screenshot 2025-06-13 at 13 31 32" src="https://github.com/user-attachments/assets/97fa1c79-41e4-4e55-aa49-6a2b13704368" />
+## Create Post
+<img width="1512" alt="Screenshot 2025-06-13 at 13 48 09" src="https://github.com/user-attachments/assets/0792a9fc-253a-4f18-bfa0-2fd7fd674dba" />
 
 ## Search page
 <img width="1512" alt="Screenshot 2025-06-13 at 13 32 34" src="https://github.com/user-attachments/assets/9f1e5b8e-01c4-4c43-8c4a-737084d99e8d" />
@@ -37,6 +39,8 @@
 ## Detail post
 
 <img width="510" alt="Screenshot 2025-06-13 at 13 40 44" src="https://github.com/user-attachments/assets/0bae91a5-5eea-4c2d-a4be-742b7e294923" />
+## Create Post
+<img width="570" alt="Screenshot 2025-06-13 at 13 47 45" src="https://github.com/user-attachments/assets/6df5c717-41e7-43a7-9f68-dabe443d83ef" />
 
 ## Notification 
 <img width="580" alt="Screenshot 2025-06-13 at 13 40 16" src="https://github.com/user-attachments/assets/069b3e94-cceb-4a03-8a01-7f0f1c25ea32" />
