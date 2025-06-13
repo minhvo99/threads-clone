@@ -8,6 +8,7 @@ import { GenerateNotificationMessage } from '@components/GenerateNotificationMes
 import { useState, useMemo } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Loading from './Loading';
+import NotificationMessage from './NotificationMessage';
 
 const NotificationsPanel = () => {
     const [offset, setOffset] = useState(0);
@@ -100,7 +101,7 @@ const NotificationsPanel = () => {
                     }
                 >
                     {allNotifications.map((notification) => (
-                        <GenerateNotificationMessage
+                        <NotificationMessage
                             key={notification._id}
                             notification={notification}
                             onSeenNotification={() => {

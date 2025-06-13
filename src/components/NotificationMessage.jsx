@@ -2,11 +2,7 @@ import { Link } from 'react-router-dom';
 import { getAvatar, stringAvatar } from '../utils/stringAvatar';
 import { Avatar, MenuItem } from '@mui/material';
 
-export const GenerateNotificationMessage = ({
-    notification,
-    onSeenNotification,
-    setAnchorEl,
-}) => {
+const NotificationMessage = ({ notification, onSeenNotification, setAnchorEl }) => {
     return (
         <MenuItem
             className={`flex !justify-between ${notification.seen ? '' : '!bg-dark-300'} transition-colors duration-200 hover:!bg-gray-100`}
@@ -53,3 +49,5 @@ export const GenerateNotificationMessage = ({
         </MenuItem>
     );
 };
+
+export default NotificationMessage;

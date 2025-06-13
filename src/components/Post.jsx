@@ -1,4 +1,4 @@
-import { Favorite, Send } from '@mui/icons-material';
+import { DeleteOutline, Favorite, Send } from '@mui/icons-material';
 import { Avatar, IconButton, Menu, MenuItem, TextField } from '@mui/material';
 import { getAvatar, stringAvatar } from '@utils/stringAvatar';
 import dayjs from 'dayjs';
@@ -34,7 +34,7 @@ const Post = ({
     const [isCommentBoxOpen, setIsCommentBoxOpen] = useState(false);
     const [comment, setComment] = useState('');
     const [anchorEl, setAnchorEl] = useState(null);
-    const [dotMenu, setDotMenu] = useState(null);
+    const [dotMenuEl, setDotMenuEl] = useState(null);
     const [onDeletePost, { isLoading }] = useDeletePostMutation();
     const dispatch = useDispatch();
     const [onDeleteComment] = useDeleteCommentMutation();
@@ -42,7 +42,7 @@ const Post = ({
         setAnchorEl(null);
     };
     const handleDotMenuClose = () => {
-        setDotMenu(null);
+        setDotMenuEl(null);
     };
 
     const handleOpenMenu = (event) => {
@@ -50,7 +50,7 @@ const Post = ({
     };
 
     const handleOpenDotMenu = (event) => {
-        setDotMenu(event.target);
+        setDotMenuEl(event.target);
     };
 
     return (
@@ -187,7 +187,7 @@ const Post = ({
                                             }
                                         }}
                                         children='Delete comment'
-                                        anchorEl={dotMenu}
+                                        anchorEl={dotMenuEl}
                                         handleMenuClose={handleDotMenuClose}
                                     />
                                 </div>
@@ -252,8 +252,7 @@ const Post = ({
                         );
                     }
                 }}
-                // children={<DeleteOutlineIcon />}
-                children='Delete Post'
+                children={<DeleteOutline />}
                 anchorEl={anchorEl}
                 handleMenuClose={handleMenuClose}
             />
