@@ -1,20 +1,21 @@
 import { DeleteOutline, Favorite, Send } from '@mui/icons-material';
-import { Avatar, IconButton, Menu, MenuItem, TextField } from '@mui/material';
 import { getAvatar, stringAvatar } from '@utils/stringAvatar';
 import dayjs from 'dayjs';
 import React, { useState } from 'react';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import { Avatar, IconButton, TextField } from '@mui/material';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faComment, faPaperPlane } from '@fortawesome/free-regular-svg-icons';
 import { faRepeat } from '@fortawesome/free-solid-svg-icons';
 
-import { useUserInfor } from '@hooks/index';
+import { useDetectLayout, useUserInfor } from '@hooks/index';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { useDeleteCommentMutation, useDeletePostMutation } from '@services/postAPI';
 import { useDispatch } from 'react-redux';
 import { openSnakeBar } from '@redux/slices/snakeBarSlices';
 import MenuPopUp from './MenuPopUp';
+import { openDialog } from '@redux/slices/dialogSlice';
 
 const Post = ({
     userInfo,
@@ -38,6 +39,7 @@ const Post = ({
     const [onDeletePost, { isLoading }] = useDeletePostMutation();
     const dispatch = useDispatch();
     const [onDeleteComment] = useDeleteCommentMutation();
+    const { isSmallLayout } = useDetectLayout();
     const handleMenuClose = () => {
         setAnchorEl(null);
     };
@@ -75,7 +77,22 @@ const Post = ({
                 </div>
 
                 <p className='mb-1'>{content}</p>
-                {image && <img src={image} />}
+                {image && (
+                    <img
+                        onClick={() => {
+                            if (isSmallLayout) return;
+                            dispatch(
+                                openDialog({
+                                    contentType: 'DETAIL_POST_DIALOG',
+                                    additionalData: id,
+                                    fullScreen: true,
+                                    hasTitle: false,
+                                }),
+                            );
+                        }}
+                        src={image}
+                    />
+                )}
                 <div className='mt-4 flex items-center justify-items-start gap-4'>
                     <div className='flex items-center gap-1 text-sm'>
                         {isLiked ? (

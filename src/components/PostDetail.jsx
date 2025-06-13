@@ -147,7 +147,7 @@ const PostDetail = () => {
                 </div>
 
                 <>
-                    <div className='max-h-[400px] overflow-y-auto py-2'>
+                    <div className='max-h-48 overflow-y-auto py-2 sm:max-h-[400px]'>
                         {data.comments &&
                             [...data.comments]
                                 .sort(

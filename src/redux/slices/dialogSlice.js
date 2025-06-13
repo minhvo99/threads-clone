@@ -8,6 +8,8 @@ const initialState = {
     contentType: null,
     additionalData: {},
     actions: null,
+    fullScreen: false,
+    hasTitle: true,
 };
 
 export const dialogSlice = createSlice({

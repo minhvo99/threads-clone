@@ -26,10 +26,22 @@ import { toggleDrawer } from '@redux/slices/settingSlices';
 import { getAvatar, stringAvatar } from '@utils/stringAvatar';
 import { useDetectLayout, useLogOut, useUserInfor } from '@hooks/index';
 import NotificationsPanel from './NotificationsPanel';
+import { openDialog } from '@redux/slices/dialogSlice';
+import { useGetNotificationsQuery } from '@services/notificationAPI';
 
 const Header = () => {
     // const [anchorEl, setAnchorEl] = useState(null);
     // const { handleLogOut } = useLogOut();
+    // const userInfo = useUserInfor();
+    // const dispatch = useDispatch();
+
+    // const { data: notificationsList } = useGetNotificationsQuery({
+    //     limit: 10,
+    //     offset: 0,
+    // });
+    // const notificationCount = notificationsList?.notifications?.filter(
+    //     (noti) => !noti.seen,
+    // );
 
     // const renderMenu = (
     //     <Menu
@@ -63,21 +75,43 @@ const Header = () => {
     //             <img src='/threads.png' alt='' className='mt-4 h-12 w-12' />
     //             <div className='mb-4 flex flex-col items-center gap-4'>
     //                 <IconButton size='large'>
-    //                     <HomeOutlinedIcon />
+    //                     <Link to='/'>
+    //                         <HomeOutlinedIcon />
+    //                     </Link>
     //                 </IconButton>
     //                 <IconButton size='large'>
-    //                     <SearchRoundedIcon />
+    //                     <Link to='/search/users'>
+    //                         <SearchRoundedIcon />
+    //                     </Link>
     //                 </IconButton>
-    //                 <IconButton size='large'>
+    //                 <IconButton
+    //                     size='large'
+    //                     onClick={() =>
+    //                         dispatch(
+    //                             openDialog({
+    //                                 title: 'New Thread',
+    //                                 contentType: 'NEW_POST_DIALOG',
+    //                                 additionalData: userInfo,
+    //                             }),
+    //                         )
+    //                     }
+    //                 >
     //                     <AddRoundedIcon />
     //                 </IconButton>
     //                 <IconButton size='large'>
-    //                     <Badge badgeContent={4} color='error'>
-    //                         <FavoriteBorderRoundedIcon />
-    //                     </Badge>
+    //                     <Link to='notifications'>
+    //                         <Badge
+    //                             badgeContent={notificationCount?.length || 0}
+    //                             color='error'
+    //                         >
+    //                             <FavoriteBorderRoundedIcon />
+    //                         </Badge>
+    //                     </Link>
     //                 </IconButton>
     //                 <IconButton size='large'>
-    //                     <PersonOutlineRoundedIcon />
+    //                     <Link to='/my-profile'>
+    //                         <PersonOutlineRoundedIcon />
+    //                     </Link>
     //                 </IconButton>
     //             </div>
     //             <IconButton size='large' onClick={handleMenuClick}>
@@ -104,9 +138,10 @@ const Header = () => {
     //                     <AddRoundedIcon />
     //                 </IconButton>
     //                 <IconButton size='large'>
-    //                     <Badge badgeContent={4} color='error'>
+    //                     <NotificationsPanel />
+    //                     {/* <Badge badgeContent={4} color='error'>
     //                         <FavoriteBorderRoundedIcon />
-    //                     </Badge>
+    //                     </Badge> */}
     //                 </IconButton>
     //                 <IconButton size='large'>
     //                     <PersonOutlineRoundedIcon />
