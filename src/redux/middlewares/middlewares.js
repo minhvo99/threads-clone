@@ -2,7 +2,6 @@ import { logOut } from '@redux/slices/authSlices';
 import { persistor } from '@redux/store';
 import { rootApi } from '@services/rootApi';
 
-// eslint-disable-next-line no-unused-vars
 export const logOutmiddleware = (store) => {
     return (next) => {
         return (action) => {

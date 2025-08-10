@@ -86,7 +86,7 @@ const PostCreation = () => {
             <TextField
                 className='flex-1 !border-none'
                 size='small'
-                placeholder='What is on your mind?'
+                placeholder="What's new?"
                 autoFocus={false}
                 onClick={() =>
                     dispatch(

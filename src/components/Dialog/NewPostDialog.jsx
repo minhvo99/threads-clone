@@ -48,7 +48,7 @@ const NewPostDialog = ({ userInfo }) => {
                 </div>
                 <TextareaAutosize
                     minRows={3}
-                    placeholder='What is on your mind?'
+                    placeholder="What's new?"
                     className='mt-4 w-full p-2'
                     autoFocus={false}
                     value={content}

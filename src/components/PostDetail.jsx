@@ -53,7 +53,7 @@ const PostDetail = () => {
         });
     };
     const onLike = async () => {
-        const res = await likePost(data._id).unwrap();
+        const res = await likePost(data?._id).unwrap();
         createNotification({
             receiverUserId: data.author?._id,
             postId: data._id,
@@ -68,27 +68,27 @@ const PostDetail = () => {
                 <div className='flex justify-between'>
                     <div className='my-3 flex gap-3'>
                         <Avatar
-                            {...stringAvatar(data.author?.fullName)}
-                            src={getAvatar(data.author)?.avatar}
+                            {...stringAvatar(data?.author?.fullName)}
+                            src={getAvatar(data?.author)?.avatar}
                         />
                         <div>
-                            <p className='font-bold'>{data.author?.fullName}</p>
+                            <p className='font-bold'>{data?.author?.fullName}</p>
                             <p className='text-dark-400 text-sm'>
-                                {dayjs(data.createAt).format('DD/MM/YYYY HH:mm')}
+                                {dayjs(data?.createAt).format('DD/MM/YYYY HH:mm')}
                             </p>
                         </div>
                     </div>
                 </div>
 
-                <p className='mb-1'>{data.content}</p>
-                {data?.image && <img src={data.image} />}
+                <p className='mb-1'>{data?.content}</p>
+                {data?.image && <img src={data?.image} />}
                 <div className='mt-4 flex items-center justify-items-start gap-4'>
                     <div className='flex items-center gap-1 text-sm'>
                         {isLiked() ? (
                             <IconButton
                                 size='small'
                                 className='!text-dark-100 flex-1'
-                                onClick={() => unLikePost(data._id)}
+                                onClick={() => unLikePost(data?._id)}
                                 data-testid='unlike-button'
                             >
                                 <Favorite
@@ -148,7 +148,7 @@ const PostDetail = () => {
 
                 <>
                     <div className='max-h-48 overflow-y-auto py-2 sm:max-h-[400px]'>
-                        {data.comments &&
+                        {data?.comments &&
                             [...data.comments]
                                 .sort(
                                     (a, b) =>
