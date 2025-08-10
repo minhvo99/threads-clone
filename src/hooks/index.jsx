@@ -1,5 +1,5 @@
 import { useDispatch } from 'react-redux';
-import { logOut } from '@redux/slices/authSlices';
+import { logOut, saveUserInfor } from '@redux/slices/authSlices';
 import { useNavigate } from 'react-router-dom';
 
 import { useTheme } from '@emotion/react';
@@ -12,6 +12,7 @@ import { throttle } from 'lodash';
 import { useCreateNotificationMutation } from '@services/notificationAPI';
 import { socket } from '@context/SocketProvider';
 import { Events } from '@libs/constants';
+import { useGetAuthUserQuery } from '@services/rootApi';
 export const useLogOut = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -136,4 +137,20 @@ export const useNotifications = () => {
     }
 
     return { createNotification };
+};
+
+export const useProtectedLayout = () => {
+    const dispatch = useDispatch();
+    const { accessToken } = useSelector((state) => state.auth);
+    const respon = useGetAuthUserQuery(undefined, { skip: !accessToken });
+
+    useEffect(() => {
+        if (respon.isSuccess) {
+            dispatch(saveUserInfor(respon.data));
+        }
+    }, [respon.isSuccess, respon.data, dispatch]);
+    return {
+        isLoading: respon.isLoading,
+        userInfor: respon.data,
+    };
 };

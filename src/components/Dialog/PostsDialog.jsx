@@ -155,7 +155,7 @@ const PostsDialog = ({ id }) => {
                     </div>
                     <Divider />
 
-                    <div className='max-h-48 w-120 overflow-y-auto py-2 sm:max-h-[400px]'>
+                    <div className='max-h-48 w-96 overflow-y-auto py-2 sm:max-h-[400px] sm:w-120'>
                         {data.comments &&
                             [...data.comments]
                                 .sort(

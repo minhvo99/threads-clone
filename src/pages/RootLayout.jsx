@@ -21,7 +21,7 @@ const RootLayout = () => {
                 autoHideDuration={3000}
                 onClose={() => dispatch(closeSnakeBar())}
             >
-                <Alert severity={type} variant='filled' sx={{ width: '100%' }}>
+                <Alert severity={type} sx={{ width: '100%' }}>
                     {message}
                 </Alert>
             </Snackbar>

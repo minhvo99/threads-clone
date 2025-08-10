@@ -293,6 +293,7 @@ export const postAPI = rootApi.injectEndpoints({
                         patchResult.undo();
                     }
                 },
+                invalidatesTags: [{ type: 'GET_NOTIFICATIONS' }],
             }),
         };
     },
